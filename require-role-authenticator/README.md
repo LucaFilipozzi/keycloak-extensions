@@ -13,6 +13,12 @@ But it may also be used to require that an impersonator have a role. When
 applied on a client-basis, this allow for client-by-client impersonation
 control.
 
+This authenticator will add to user session notes the array of client roles
+that match the required role and that the impersonator has, under the
+IMPERSONATOR_ROLES key. If this authenticator is used more than once to
+enforce a required role of an impersonator, only the latest one will
+set the value on the user session note, overwriting previous value(s).
+
 ## deployment
 
 After building with `mvn package`, copy `target/require-role-authenticator-«version».jar`
@@ -58,13 +64,13 @@ In this example, Keycloak is an identity provider to clients.
 
    | auth type   |                             | requirement   |               |               |               |
    | ------------| --------------------------- | ------------- | ------------- | ------------- | ------------- |
-   | Cookie Auth |                             | ◯ REQUIRED    | ● ALTERNATIVE | ◯ DISABLED    | ◯ CONDITIONAL |
-   |             | Cookie                      | ● REQUIRED    | ◯ ALTERNATIVE | ◯ DISABLED    |               |
-   |             | Require Role (impersonator) | ● REQUIRED    | ◯ ALTERNATIVE | ◯ DISABLED    |               |
-   |             | Require Role (accessor)     | ● REQUIRED    | ◯ ALTERNATIVE | ◯ DISABLED    |               |
-   | Local Auth  |                             | ◯ REQUIRED    | ● ALTERNATIVE | ◯ DISABLED    | ◯ CONDITIONAL |
+   | Cookie Auth |                             | ○ REQUIRED    | ● ALTERNATIVE | ○ DISABLED    | ○ CONDITIONAL |
+   |             | Cookie                      | ● REQUIRED    | ○ ALTERNATIVE | ○ DISABLED    |               |
+   |             | Require Role (impersonator) | ● REQUIRED    | ○ ALTERNATIVE | ○ DISABLED    |               |
+   |             | Require Role (accessor)     | ● REQUIRED    | ○ ALTERNATIVE | ○ DISABLED    |               |
+   | Local Auth  |                             | ○ REQUIRED    | ● ALTERNATIVE | ○ DISABLED    | ○ CONDITIONAL |
    |             | Username Password Form      | ● REQUIRED    |               |               |               |
-   |             | Require Role (accessor)     | ● REQUIRED    | ◯ ALTERNATIVE | ◯ DISABLED    |               |
+   |             | Require Role (accessor)     | ● REQUIRED    | ○ ALTERNATIVE | ○ DISABLED    |               |
 
    where
 

@@ -159,7 +159,7 @@
           <configuration>
             <configLocation>google_checks.xml</configLocation>
             <consoleOutput>true</consoleOutput>
-            <encoding>${project.build.sourceEncoding}</encoding>
+            <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
             <failsOnError>true</failsOnError>
             <suppressionsLocation>.checkstyle-suppressions.xml</suppressionsLocation>
           </configuration>

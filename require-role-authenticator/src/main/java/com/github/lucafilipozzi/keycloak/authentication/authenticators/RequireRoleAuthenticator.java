@@ -1,36 +1,71 @@
 // Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
-//
-// inspirations:
-// - github.com/keycloak/keycloak:
-//   - services/src/main/java/org/keycloak/authentication/authenticators/conditional/ConditionalRoleAuthenticator.java
-// - github.com/thomasdarimont/keycloak-extension-playground
-//   - auth-require-role-extension/src/main/java/com/github/thomasdarimont/keycloak/auth/requirerole/RequireRoleAuthenticator.java
-//
-// primary differences:
-// - not a conditional authenticator
-// - role requirement can be applied to impersonator
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
+import com.google.common.collect.Sets;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
-import org.keycloak.models.AuthenticationExecutionModel.Requirement;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.ImpersonationSessionNote;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.UserSessionModel;
 import org.keycloak.models.utils.KeycloakModelUtils;
 import org.keycloak.models.utils.RoleUtils;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 
 public class RequireRoleAuthenticator implements Authenticator {
+
+  private class TargetedUserModel {
+    private UserModel user = null;
+    private UserSessionModel userSession = null;
+    private boolean isImpersonator = false;
+
+    public TargetedUserModel(UserModel user, UserSessionModel userSession) {
+      this.user = user;
+      this.userSession = userSession;
+    }
+
+    UserModel getUser() {
+      return user;
+    }
+
+    UserSessionModel getUserSession() {
+      return userSession;
+    }
+
+    boolean isImpersonator() {
+      return userSession != null;
+    }
+  }
+
+  private class RequiredRoleModel {
+    private RoleModel role = null;
+    private boolean isAppliedToImpersonator = false;
+
+    public RequiredRoleModel(RoleModel role, boolean isAppliedToImpersonator) {
+      this.role = role;
+      this.isAppliedToImpersonator = isAppliedToImpersonator;
+    }
+
+    RoleModel getRole() {
+      return role;
+    }
+
+    boolean isAppliedToImpersonator() {
+      return isAppliedToImpersonator;
+    }
+  }
 
   private static final Logger LOG = Logger.getLogger(RequireRoleAuthenticator.class);
 
@@ -47,10 +82,10 @@ public class RequireRoleAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
-    RoleModel requiredRole = resolveRequiredRole(context);
-    UserModel targetedUser = resolveTargetedUser(context);
+    RequiredRoleModel requiredRole = resolveRequiredRole(context);
+    TargetedUserModel targetedUser = resolveTargetedUser(context);
 
-    if (targetedUser == null || requiredRole == null) {
+    if (requiredRole == null || targetedUser == null) {
       Response response = context.form()
           .setError("Server Misconfiguration")
           .createErrorPage(Response.Status.INTERNAL_SERVER_ERROR);
@@ -58,7 +93,7 @@ public class RequireRoleAuthenticator implements Authenticator {
       return;
     }
 
-    if (userHasRole(context, targetedUser, requiredRole)) {
+    if (targetedUserHasRequiredRole(context, targetedUser, requiredRole)) {
       context.success();
       return;
     }
@@ -69,9 +104,8 @@ public class RequireRoleAuthenticator implements Authenticator {
     context.failure(AuthenticationFlowError.ACCESS_DENIED, response);
   }
 
-  private RoleModel resolveRequiredRole(AuthenticationFlowContext context) {
-    Map<String, String> config = context.getAuthenticatorConfig().getConfig();
-    String requiredRoleName = config.get(REQUIRED_ROLE_NAME);
+  private RequiredRoleModel resolveRequiredRole(AuthenticationFlowContext context) {
+    String requiredRoleName = getRequiredRoleName(context);
 
     if (requiredRoleName == null) {
       return null;
@@ -88,54 +122,95 @@ public class RequireRoleAuthenticator implements Authenticator {
       requiredRoleName = requiredRoleName.replace(CLIENT_ID_PLACEHOLDER, client.getClientId());
     }
 
-    RealmModel realm = context.getRealm();
-    return KeycloakModelUtils.getRoleFromString(realm, requiredRoleName);
+    RoleModel role = KeycloakModelUtils.getRoleFromString(context.getRealm(), requiredRoleName);
+    if (role == null) {
+      return null;
+    }
+
+    return new RequiredRoleModel(role, isAppliedToImpersonator(context));
   }
 
-  private UserModel resolveTargetedUser(AuthenticationFlowContext context) {
-    Map<String, String> config = context.getAuthenticatorConfig().getConfig();
+  private TargetedUserModel resolveTargetedUser(AuthenticationFlowContext context) {
     RealmModel realm = context.getRealm();
     KeycloakSession session = context.getSession();
-    UserModel targetedUser = context.getUser();
-    Boolean applyToImpersonator = Boolean.parseBoolean(config.get(APPLY_TO_IMPERSONATOR));
+    TargetedUserModel targetedUser = new TargetedUserModel(context.getUser(), null);
 
-    if (applyToImpersonator) {
+    if (isAppliedToImpersonator(context)) {
       AuthResult authResult = AuthenticationManager.authenticateIdentityCookie(session, realm, true);
       if (authResult == null) {
         return null;
       }
 
-      Map<String, String> userSessionNotes = authResult.getSession().getNotes();
+      UserSessionModel userSession = authResult.getSession();
+      Map<String, String> userSessionNotes = userSession.getNotes();
       if (userSessionNotes.containsKey(ImpersonationSessionNote.IMPERSONATOR_ID.toString())) {
         String impersonatorId = userSessionNotes.get(ImpersonationSessionNote.IMPERSONATOR_ID.toString());
-        targetedUser = session.users().getUserById(realm, impersonatorId);
+        targetedUser = new TargetedUserModel(session.users().getUserById(realm, impersonatorId), userSession);
       }
     }
 
     return targetedUser;
   }
 
-  private boolean userHasRole(AuthenticationFlowContext context, UserModel targetedUser, RoleModel requiredRole) {
-    Map<String, String> config = context.getAuthenticatorConfig().getConfig();
-    Boolean applyToImpersonator = Boolean.parseBoolean(config.get(APPLY_TO_IMPERSONATOR));
+  private String getRequiredRoleName(AuthenticationFlowContext context) {
+    return context.getAuthenticatorConfig().getConfig().get(REQUIRED_ROLE_NAME);
+  }
 
-    LOG.debugf("determining whether user '%s' has role '%s'", targetedUser.getUsername(), requiredRole.getName());
+  private Boolean isAppliedToImpersonator(AuthenticationFlowContext context) {
+    return Boolean.parseBoolean(context.getAuthenticatorConfig().getConfig().get(APPLY_TO_IMPERSONATOR));
+  }
 
-    // return true if rule requirement applies to impersonator but impersonation is not active
-    if (applyToImpersonator && targetedUser == context.getUser()) {
-      LOG.debug("access granted - impersonation is not active");
-      return true;
+  private boolean targetedUserHasRequiredRole(AuthenticationFlowContext context, TargetedUserModel targetedUser, RequiredRoleModel requiredRole) {
+    LOG.infof("determining whether user '%s' has role '%s'", targetedUser.getUser().getUsername(), requiredRole.getRole().getName());
+
+    if (requiredRole.isAppliedToImpersonator()) {
+      if (!targetedUser.isImpersonator()) {
+        LOG.info("access granted to user (impersonation not in effect)");
+        return true;
+      }
+
+      if (impersonatorHasRole(context, targetedUser, requiredRole)) /* expensive but impersonation is rare */ {
+        LOG.info("access granted to impersonator");
+        return true;
+      }
+
+      LOG.info("access denied to impersonator");
+      return false;
+    } else {
+      if (RoleUtils.hasRole(targetedUser.getUser().getRoleMappingsStream(), requiredRole.getRole()) /* cheap, try first */
+          || RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(targetedUser.getUser()), requiredRole.getRole()) /* expensive */) {
+        LOG.info("access granted to user");
+        return true;
+      }
+
+      LOG.info("access denied to user");
+      return false;
+    }
+  }
+
+  private boolean impersonatorHasRole(AuthenticationFlowContext context, TargetedUserModel targetedUser, RequiredRoleModel requiredRole) {
+    // find all client roles that are either themselves or are composited from, however deeply, the required role
+    Set<RoleModel> clientRoles = context.getAuthenticationSession().getClient().getRolesStream()
+        .filter(x -> flattenRoleTree(x).anyMatch(y -> y.equals(requiredRole.getRole())))
+        .collect(Collectors.toSet());
+
+    // find all user roles, however deeply, including those held via group membership
+    Set<RoleModel> userRoles = RoleUtils.getDeepUserRoleMappings(targetedUser.getUser());
+
+    Set<RoleModel> roleIntersection = Sets.intersection(clientRoles, userRoles);
+
+    if (roleIntersection.isEmpty()) {
+      return false; // the targeted user (impersonator) does not have the required role
     }
 
-    // rely on short-circuit evaluation to potentially avoid expensive call
-    if (RoleUtils.hasRole(targetedUser.getRoleMappingsStream(), requiredRole) /* cheap */
-        || RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(targetedUser), requiredRole) /* expensive */) {
-      LOG.debug("access granted - user does have role");
-      return true;
-    }
+    String roles = roleIntersection.stream().map(RoleModel::getName).collect(Collectors.joining(","));
+    targetedUser.getUserSession().setNote("IMPERSONATOR_ROLES", roles);
 
-    LOG.debug("access denied - user does not have role");
-    return false;
+    return true; // the targeted user (impersonator) does have the required role
+  }
+
+  private Stream<RoleModel> flattenRoleTree(final RoleModel role) {
+    return Stream.concat(Stream.of(role), role.getCompositesStream().flatMap(x -> flattenRoleTree(x)));
   }
 
   @Override
