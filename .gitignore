@@ -1,0 +1,8 @@
+# Copyright 2023 Luca Filipozzi. All rights reserved. See LICENSE.
+
+# idea
+.idea/
+*.iml
+
+# java
+target/
