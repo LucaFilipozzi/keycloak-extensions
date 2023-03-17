@@ -27,7 +27,7 @@
     <revision>1.0-SNAPSHOT</revision>
     <github.account>LucaFilipozzi</github.account>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <keycloak.version>18.0.2</keycloak.version>
+    <keycloak.version>20.0.5</keycloak.version>
     <java.version>11</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
