@@ -192,27 +192,27 @@ public class RequireRoleAuthenticator implements Authenticator {
     boolean hasRequiredRole(final RequiredRoleModel requiredRole) {
       if (requiredRole.getApplyToImpersonator()) {
         if (userSession == null) {
-          return true;
+          return true; // required role applies to impersonator but impersonation not in effect
         }
 
         Set<RoleModel> clientRoles = ctx.getClient().getRolesStream()
-          .filter(x -> getDeepRoleCompositesStream(x).anyMatch(y -> y.equals(requiredRole)))
-          .collect(Collectors.toSet());
+            .filter(x -> getDeepRoleCompositesStream(x).anyMatch(y -> y.equals(requiredRole)))
+            .collect(Collectors.toSet());
         Set<RoleModel> userRoles = RoleUtils.getDeepUserRoleMappings(this);
         Set<RoleModel> roleIntersection = Sets.intersection(clientRoles, userRoles);
 
         if (!roleIntersection.isEmpty()) {
           String roles = roleIntersection.stream().map(RoleModel::getName).collect(Collectors.joining(","));
           userSession.setNote("IMPERSONATOR_ROLES", roles);
-          return true;
+          return true; // targeted user (impersonator) has required role
         }
       } else {
         if (RoleUtils.hasRole(getRoleMappingsStream(), requiredRole)                       // cheap, try first
             || RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(this), requiredRole)) { // expensive, try next
-          return true;
+          return true; // targeted user has required role
         }
       }
-      return false;
+      return false; // targeted user does not have required role
     }
 
     private static Stream<RoleModel> getDeepRoleCompositesStream(final RoleModel role) { // helper function
