@@ -1,6 +1,6 @@
 // Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
 
-package com.github.lucafilipozzi.keycloak.authentication.authenticators;
+package com.github.lucafilipozzi.keycloak.authentication.authenticators.browser;
 
 import com.google.common.collect.Sets;
 import java.util.Map;
