@@ -55,8 +55,8 @@ public class TargetedUserModel implements UserModel {
 
   public boolean hasRequiredRole(final RequiredRoleModel requiredRole) {
     if (requiredRole.getApplyToImpersonator()) {
-      if (userSession == null) {
-        return true; // required role applies to impersonator but impersonation not in effect
+      if (userSession == null) { // impersonation is not active
+        return context.getEnforceStrictly() ? false : true; // fail if enforcing
       }
 
       Set<RoleModel> clientRoles = context.getClient().getRolesStream()

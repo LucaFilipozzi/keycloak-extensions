@@ -18,27 +18,45 @@ public class RequireRoleContext {
 
   private Boolean applyToImpersonator = null;
 
+  private Boolean enforceStrictly = null;
+
+  private Boolean negateResult = null;
+
   private String requiredRoleName = null;
 
   private ClientModel client = null;
 
   private Map<String, String> config = null;
 
-  ClientModel getClient() {
+  public ClientModel getClient() {
     if (client == null) {
       client = context.getAuthenticationSession().getClient();
     }
     return client;
   }
 
-  Boolean getApplyToImpersonator() {
+  public Boolean getApplyToImpersonator() {
     if (applyToImpersonator == null) {
       applyToImpersonator = Boolean.parseBoolean(getConfig().get(RequireRoleConstants.APPLY_TO_IMPERSONATOR));
     }
     return applyToImpersonator;
   }
 
-  String getRequiredRoleName() {
+  public Boolean getEnforceStrictly () {
+    if (enforceStrictly == null) {
+      enforceStrictly = Boolean.parseBoolean(getConfig().get(RequireRoleConstants.ENFORCE_STRICTLY));
+    }
+    return enforceStrictly;
+  }
+
+  public Boolean getNegateResult() {
+    if (negateResult == null) {
+      negateResult = Boolean.parseBoolean(getConfig().get(RequireRoleConstants.NEGATE_RESULT));
+    }
+    return negateResult;
+  }
+
+  public String getRequiredRoleName() {
     if (requiredRoleName == null) {
       requiredRoleName = getConfig().get(RequireRoleConstants.REQUIRED_ROLE_NAME);
     }

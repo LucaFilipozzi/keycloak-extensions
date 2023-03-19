@@ -38,7 +38,13 @@ public class RequireRoleAuthenticator implements Authenticator {
     }
 
     LOG.infof("checking whether user '%s' has role '%s'", targetedUser.getUsername(), requiredRole.getName());
-    if (targetedUser.hasRequiredRole(requiredRole)) {
+    Boolean result = targetedUser.hasRequiredRole(requiredRole);
+    if (context.getNegateResult()) {
+      LOG.info("negating result");
+      result = !result;
+    }
+
+    if (result) {
       context.success();
       LOG.info("access granted");
       return;

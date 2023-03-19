@@ -7,13 +7,17 @@ import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 
 public class RequireRoleConstants {
-  public static final String REQUIRED_ROLE_NAME = "roleName";
-
   public static final String APPLY_TO_IMPERSONATOR = "applyToImpersonator";
+
+  public static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
 
   public static final String CLIENT_ID_PLACEHOLDER = "${clientId}";
 
-  public static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
+  public static final String NEGATE_RESULT = "negateResult";
+
+  public static final String REQUIRED_ROLE_NAME = "roleName";
+
+  public static final String ENFORCE_STRICTLY = "enforceStrictly";
 
   static {
     CONFIG_PROPERTIES = ProviderConfigurationBuilder.create()
@@ -33,6 +37,18 @@ public class RequireRoleConstants {
             + "Alternately, the expression '${clientId}.roleName' may be used to specify a role of the current client. "
             + "Note that if the required role name does not resolve to a role, then the authentication will fail. "
             + "Note further that requiring a role of an impersonator must only be configured in browser/cookie flows.")
+      .add()
+      .property()
+        .name(NEGATE_RESULT)
+        .type(ProviderConfigProperty.BOOLEAN_TYPE)
+        .label("negate result")
+        .helpText("Specify whether to negate the result.")
+      .add()
+      .property()
+        .name(ENFORCE_STRICTLY)
+        .type(ProviderConfigProperty.BOOLEAN_TYPE)
+        .label("enforce strictly")
+        .helpText("Specify whether to enforce strictly.")
       .add()
       .build();
   }
