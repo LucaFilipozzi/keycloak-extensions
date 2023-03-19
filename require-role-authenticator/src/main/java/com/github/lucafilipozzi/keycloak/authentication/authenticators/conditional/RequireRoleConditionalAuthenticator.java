@@ -2,42 +2,19 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional;
 
-import com.google.common.collect.Sets;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Delegate;
-import lombok.experimental.Helper;
+import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleContext;
+import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequiredRoleModel;
+import com.github.lucafilipozzi.keycloak.authentication.authenticators.TargetedUserModel;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
-import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticator;
-import org.keycloak.models.ClientModel;
-import org.keycloak.models.ImpersonationSessionNote;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.UserSessionModel;
-import org.keycloak.models.utils.KeycloakModelUtils;
-import org.keycloak.models.utils.RoleUtils;
-import org.keycloak.services.managers.AuthenticationManager;
-import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 
 public class RequireRoleConditionalAuthenticator implements ConditionalAuthenticator {
 
   private static final Logger LOG = Logger.getLogger(RequireRoleConditionalAuthenticator.class);
-
-  public static final String REQUIRED_ROLE_NAME = "roleName";
-
-  public static final String APPLY_TO_IMPERSONATOR = "applyToImpersonator";
-
-  private static final String CLIENT_ID_PLACEHOLDER = "${clientId}";
 
   @Override
   public void action(AuthenticationFlowContext context) {
@@ -50,9 +27,24 @@ public class RequireRoleConditionalAuthenticator implements ConditionalAuthentic
   }
 
   @Override
-  public boolean matchCondition(AuthenticationFlowContext context) {
-    // TODO
-    return true;
+  public boolean matchCondition(AuthenticationFlowContext ctx) {
+    final RequireRoleContext context = new RequireRoleContext(ctx);
+    final RequiredRoleModel requiredRole = RequiredRoleModel.resolveFromContext(context);
+    final TargetedUserModel targetedUser = TargetedUserModel.resolveFromContext(context);
+
+    if (requiredRole == null || targetedUser == null) {
+      LOG.info("conditional authenticator misconfigured");
+      return false;
+    }
+
+    LOG.infof("checking whether user '%s' has role '%s'", targetedUser.getUsername(), requiredRole.getName());
+    if (targetedUser.hasRequiredRole(requiredRole)) {
+      LOG.info("condition met");
+      return true;
+    }
+
+    LOG.info("condition not met");
+    return false;
   }
 
   @Override

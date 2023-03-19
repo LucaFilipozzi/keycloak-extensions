@@ -2,50 +2,25 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.browser;
 
+import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleConstants;
 import java.util.List;
 import org.jboss.logging.Logger;
-import org.keycloak.Config;
+import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel.Requirement;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.provider.ProviderConfigurationBuilder;
 
 public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
-
   private static final Logger LOGGER = Logger.getLogger(RequireRoleAuthenticatorFactory.class);
 
-  public static final String PROVIDER_ID = "require-role";
-
-  public static final RequireRoleAuthenticator SINGLETON = new RequireRoleAuthenticator();
+  private static final String PROVIDER_ID = "require-role";
 
   public static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.ALTERNATIVE, Requirement.DISABLED };
 
-  private static final List<ProviderConfigProperty> configProperties;
-
-  static {
-    configProperties = ProviderConfigurationBuilder.create()
-      .property()
-        .name(RequireRoleAuthenticator.APPLY_TO_IMPERSONATOR)
-        .type(ProviderConfigProperty.BOOLEAN_TYPE)
-        .label("apply to impersonator")
-        .helpText("Specify whether to apply the role requirement to the user (default; off) or to the impersonator (on).")
-        .defaultValue(false)
-      .add()
-      .property()
-        .name(RequireRoleAuthenticator.REQUIRED_ROLE_NAME)
-        .type(ProviderConfigProperty.STRING_TYPE)
-        .label("required role name")
-        .helpText("Specify the name of the role that a user is required to have for successful authentication. "
-            + "This can be a realm or client role. Client roles have the form 'clientId.roleName' for a specific client. "
-            + "Alternately, the expression '${clientId}.roleName' may be used to specify a role of the current client. "
-            + "Note that if the required role name does not resolve to a role, then the authentication will fail. "
-            + "Note further that requiring a role of an impersonator must only be configured in browser/cookie flows.")
-      .add()
-      .build();
-  }
+  private static final RequireRoleAuthenticator SINGLETON = new RequireRoleAuthenticator();
 
   @Override
   public void close() {
@@ -59,7 +34,7 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
 
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
-    return configProperties;
+    return RequireRoleConstants.CONFIG_PROPERTIES;
   }
 
   @Override
@@ -88,7 +63,7 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
   }
 
   @Override
-  public void init(Config.Scope config) {
+  public void init(Scope scope) {
     // intentionally empty
   }
 

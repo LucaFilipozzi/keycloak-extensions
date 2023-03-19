@@ -34,7 +34,7 @@
   </properties>
 
   <modules>
-    <module>require-role-browser-authenticator</module>
+    <module>require-role-authenticator</module>
   </modules>
 
   <dependencyManagement>

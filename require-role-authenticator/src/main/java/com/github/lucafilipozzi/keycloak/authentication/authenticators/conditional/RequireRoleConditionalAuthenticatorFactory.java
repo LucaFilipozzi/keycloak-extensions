@@ -2,50 +2,23 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional;
 
+import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleConstants;
 import java.util.List;
 import org.jboss.logging.Logger;
-import org.keycloak.Config;
 import org.keycloak.Config.Scope;
-import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticator;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel.Requirement;
-import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
-import org.keycloak.provider.ProviderConfigurationBuilder;
 
 public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAuthenticatorFactory {
   private static final Logger LOGGER = Logger.getLogger(RequireRoleConditionalAuthenticatorFactory.class);
 
-  public static final String PROVIDER_ID = "conditional-require-role";
-
-  public static final RequireRoleConditionalAuthenticator SINGLETON = new RequireRoleConditionalAuthenticator();
+  private static final String PROVIDER_ID = "conditional-require-role";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
 
-  private static final List<ProviderConfigProperty> configProperties;
-
-  static {
-    configProperties = ProviderConfigurationBuilder.create()
-      .property()
-        .name(RequireRoleConditionalAuthenticator.APPLY_TO_IMPERSONATOR)
-        .type(ProviderConfigProperty.BOOLEAN_TYPE)
-        .label("apply to impersonator")
-        .helpText("Specify whether to apply the role requirement to the user (default; off) or to the impersonator (on).")
-        .defaultValue(false)
-      .add()
-      .property()
-        .name(RequireRoleConditionalAuthenticator.REQUIRED_ROLE_NAME)
-        .type(ProviderConfigProperty.STRING_TYPE)
-        .label("required role name")
-        .helpText("Specify the name of the role that a user is required to have for successful authentication. "
-            + "This can be a realm or client role. Client roles have the form 'clientId.roleName' for a specific client. "
-            + "Alternately, the expression '${clientId}.roleName' may be used to specify a role of the current client. "
-            + "Note that if the required role name does not resolve to a role, then the authentication will fail. "
-            + "Note further that requiring a role of an impersonator must only be configured in browser/cookie flows.")
-      .add()
-      .build();
-  }
+  private static final RequireRoleConditionalAuthenticator SINGLETON = new RequireRoleConditionalAuthenticator();
 
   @Override
   public void close() {
@@ -54,7 +27,7 @@ public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAu
 
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
-    return configProperties;
+    return RequireRoleConstants.CONFIG_PROPERTIES;
   }
 
   @Override
@@ -64,7 +37,7 @@ public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAu
 
   @Override
   public String getHelpText() {
-    return "requires the user (or impersonator) to have the specified role (or a role composited from it)";
+    return "checkes whether the user (or impersonator) to have the specified role (or a role composited from it)";
   }
 
   @Override
@@ -83,12 +56,12 @@ public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAu
   }
 
   @Override
-  public void init(Scope config) {
+  public void init(Scope scope) {
     // intentionally empty
   }
 
   @Override
-  public void postInit(KeycloakSessionFactory factory) {
+  public void postInit(KeycloakSessionFactory actory) {
     // intentionally empty
   }
 
