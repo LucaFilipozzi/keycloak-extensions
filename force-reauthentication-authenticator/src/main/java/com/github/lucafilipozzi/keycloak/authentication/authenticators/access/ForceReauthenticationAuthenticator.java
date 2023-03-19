@@ -4,11 +4,15 @@ package com.github.lucafilipozzi.keycloak.authentication.authenticators.access;
 
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
-import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
+import org.keycloak.authentication.authenticators.util.AcrStore;
+import org.keycloak.models.Constants;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.services.managers.AuthenticationManager;
+import org.keycloak.services.messages.Messages;
+import org.keycloak.sessions.AuthenticationSessionModel;
 
 public class ForceReauthenticationAuthenticator implements Authenticator {
 
@@ -21,9 +25,12 @@ public class ForceReauthenticationAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
-    // TODO
+    AuthenticationSessionModel authenticationSession = context.getAuthenticationSession();
+    AcrStore acrStore = new AcrStore(authenticationSession);
+    acrStore.setLevelAuthenticatedToCurrentRequest(Constants.NO_LOA);
+    authenticationSession.setAuthNote(AuthenticationManager.FORCED_REAUTHENTICATION, "true");
+    context.setForwardedInfoMessage(Messages.REAUTHENTICATE);
     context.attempted();
-    LOG.info("access denied");
   }
 
   @Override

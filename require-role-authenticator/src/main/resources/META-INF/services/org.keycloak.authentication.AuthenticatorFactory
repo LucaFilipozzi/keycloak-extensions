@@ -1,6 +1,5 @@
 # Copyright 2023 Luca Filipozz. Some rights reserved. See LICENSE.
 
-com.github.lucafilipozzi.keycloak.authentication.authenticators.access.ForceReauthenticationAuthenticatorFactory
 com.github.lucafilipozzi.keycloak.authentication.authenticators.browser.RequireRoleAuthenticatorFactory
 com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional.RequireImpersonationConditionalAuthenticatorFactory
 com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional.RequireRoleConditionalAuthenticatorFactory
