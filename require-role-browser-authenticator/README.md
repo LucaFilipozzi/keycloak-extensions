@@ -1,8 +1,8 @@
-# require-role-authenticator
+# require-role-browser-authenticator
 
 ## description
 
-This authenticator takes inspiration from [Thomas Darimont][thomasd]'s
+This browser authenticator takes inspiration from [Thomas Darimont][thomasd]'s
 [auth-require-role-extension][authext] but extends upon the concept by allowing
 the role requirement to be applied to the impersonator rather than the user.
 
@@ -21,8 +21,10 @@ set the value on the user session note, overwriting previous value(s).
 
 ## deployment
 
-After building with `mvn package`, copy `target/require-role-authenticator-«version».jar`
-into `${KEYCLOAK_HOME}/providers` and use `kc.sh build` to rebuild your keycloak binary.
+After building with `mvn package`, copy
+`target/require-role-browser-authenticator-«version».jar` into
+`${KEYCLOAK_HOME}/providers` and use `kc.sh build` to rebuild your keycloak
+binary.
 
 ## configuration
 
