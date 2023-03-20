@@ -74,6 +74,7 @@ public class ExtendedCookieAuthenticator extends CookieAuthenticator implements 
 
     ClientModel client = context.getAuthenticationSession().getClient();
     Set<RoleModel> clientRoles = client.getRolesStream()
+        .filter(RoleModel::isComposite)
         .filter(x -> getDeepRoleCompositesStream(x).anyMatch(y -> y.equals(requiredRole)))
         .collect(Collectors.toSet());
     Set<RoleModel> impersonatorRoles = RoleUtils.getDeepUserRoleMappings(impersonator);
