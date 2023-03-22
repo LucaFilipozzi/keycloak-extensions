@@ -1,6 +1,6 @@
 // Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
 
-package com.github.lucafilipozzi.keycloak.authentication.authenticators.browser;
+package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,12 +12,12 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory {
+public class RemoveActionsAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "extended-cookie-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.ALTERNATIVE, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
 
-  private static final ExtendedCookieAuthenticator SINGLETON = new ExtendedCookieAuthenticator();
+  private static final RemoveActionsAuthenticator SINGLETON = new RemoveActionsAuthenticator();
 
   @Override
   public void close() {
@@ -36,12 +36,12 @@ public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory 
 
   @Override
   public String getDisplayType() {
-    return "Extended Cookie";
+    return "Remove Actions";
   }
 
   @Override
   public String getHelpText() {
-    return "Extends Cookie to handle impersonators.";
+    return "Remove Actions from user.";
   }
 
   @Override
@@ -51,7 +51,7 @@ public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory 
 
   @Override
   public String getReferenceCategory() {
-    return "cookie";
+    return "override";
   }
 
   @Override

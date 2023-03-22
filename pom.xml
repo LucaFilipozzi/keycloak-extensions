@@ -35,8 +35,9 @@
 
   <modules>
     <module>extended-cookie-authenticator</module>
-    <module>force-reauthentication-authenticator</module>
-    <module>require-role-authenticator</module>
+    <module>remove-actions-authenticator</module>
+    <!--module>force-reauthentication-authenticator</module-->
+    <!--module>require-role-authenticator</module-->
   </modules>
 
   <dependencyManagement>

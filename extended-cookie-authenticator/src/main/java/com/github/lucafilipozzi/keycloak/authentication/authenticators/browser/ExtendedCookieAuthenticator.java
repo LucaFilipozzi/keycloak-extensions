@@ -9,11 +9,14 @@ import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.jboss.logging.Logger;
+import org.keycloak.OAuth2Constants;
+import org.keycloak.authentication.AuthenticatorUtil;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.authenticators.browser.CookieAuthenticator;
 import org.keycloak.authentication.authenticators.util.AcrStore;
+import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.Constants;
 import org.keycloak.models.ImpersonationSessionNote;
@@ -23,6 +26,8 @@ import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.models.utils.RoleUtils;
+import org.keycloak.protocol.oidc.OIDCLoginProtocol;
+import org.keycloak.protocol.saml.SamlProtocol;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 import org.keycloak.services.messages.Messages;
@@ -31,31 +36,21 @@ import org.keycloak.sessions.AuthenticationSessionModel;
 public class ExtendedCookieAuthenticator extends CookieAuthenticator implements Authenticator {
   private static final Logger LOG = Logger.getLogger(ExtendedCookieAuthenticator.class);
 
-  public static final String FORCE_REAUTHENTICATION = "forceReauthentication";
-
   @Override
   public void authenticate(AuthenticationFlowContext context) {
     RealmModel realm = context.getRealm();
     KeycloakSession session = context.getSession();
     AuthResult authResult = AuthenticationManager.authenticateIdentityCookie(session, realm, true);
     if (authResult == null) {
+      LOG.info("authentication by cookie failed");
       context.attempted();
       return;
     }
 
+    LOG.info("authentication by cookie succeeded");
     UserSessionModel userSession = authResult.getSession();
     if (!userSession.getNotes().containsKey(ImpersonationSessionNote.IMPERSONATOR_ID.toString())) {
-      LOG.debug("impersonation not active");
-      if (Boolean.parseBoolean(context.getAuthenticatorConfig().getConfig().get(FORCE_REAUTHENTICATION))) {
-        LOG.debug("force reauthentication enabled");
-        AuthenticationSessionModel authSession = context.getAuthenticationSession();
-        AcrStore acrStore = new AcrStore(authSession);
-        acrStore.setLevelAuthenticatedToCurrentRequest(Constants.NO_LOA);
-        authSession.setAuthNote(AuthenticationManager.FORCED_REAUTHENTICATION, "true");
-        context.setForwardedInfoMessage(Messages.REAUTHENTICATE);
-        context.attempted();
-        return;
-      }
+      LOG.info("impersonation not active");
       super.authenticate(context);
       return;
     }
@@ -64,7 +59,7 @@ public class ExtendedCookieAuthenticator extends CookieAuthenticator implements 
     UserModel impersonator = session.users().getUserById(realm, impersonatorId);
     RoleModel requiredRole = realm.getClientByClientId("realm-management").getRole("impersonation");
     if (impersonator == null || requiredRole == null) {
-      LOG.debug("internal error");
+      LOG.info("internal error");
       Response response = context.form()
           .setError("Server Misconfiguration")
           .createErrorPage(Status.INTERNAL_SERVER_ERROR);
@@ -80,14 +75,14 @@ public class ExtendedCookieAuthenticator extends CookieAuthenticator implements 
     Set<RoleModel> impersonatorRoles = RoleUtils.getDeepUserRoleMappings(impersonator);
     Set<RoleModel> roleIntersection = Sets.intersection(clientRoles, impersonatorRoles);
     if (!roleIntersection.isEmpty()) {
-      LOG.debug("access granted to impersonator");
+      LOG.info("access granted to impersonator");
       String roles = roleIntersection.stream().map(RoleModel::getName).collect(Collectors.joining(","));
       userSession.setNote("IMPERSONATOR_ROLES", roles);
       super.authenticate(context);
       return;
     }
 
-    LOG.debug("access denied to impersonator");
+    LOG.info("access denied to impersonator");
     Response response = context.form()
         .setError("Impersonator Access Denied")
         .createErrorPage(Status.FORBIDDEN);
