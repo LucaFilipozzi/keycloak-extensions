@@ -2,16 +2,16 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
-import javax.ws.rs.core.Response.Status;
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.UserModel.RequiredAction;
 
-public class RemoveActionsAuthenticator implements Authenticator {
-  private static final Logger LOG = Logger.getLogger(RemoveActionsAuthenticator.class);
+public class RemoveRequiredActionAuthenticator implements Authenticator {
+  private static final Logger LOG = Logger.getLogger(RemoveRequiredActionAuthenticator.class);
 
   @Override
   public void action(AuthenticationFlowContext context) {
@@ -20,6 +20,14 @@ public class RemoveActionsAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
+    LOG.infof("authenticate: %s", context);
+    UserModel user = context.getUser();
+
+    LOG.info("authenticate: before");
+    user.getRequiredActionsStream().forEach(x -> LOG.infof("authenticate: requiredAction=%s", x));
+    user.removeRequiredAction(RequiredAction.UPDATE_PASSWORD);
+    LOG.info("authenticate: after");
+    LOG.info("authenticate - success");
     context.success();
   }
 

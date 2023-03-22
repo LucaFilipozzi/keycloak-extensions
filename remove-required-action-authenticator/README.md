@@ -1,4 +1,4 @@
-# extended-cookie-authenticator
+# remove-required-action-authenticator
 
 ---
 Copyright 2023 Luca Filipozzi. Some rights reserved. See [LICENSE][license].

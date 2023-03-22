@@ -12,12 +12,12 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-public class RemoveActionsAuthenticatorFactory implements AuthenticatorFactory {
-  public static final String PROVIDER_ID = "extended-cookie-authenticator";
+public class RemoveRequiredActionAuthenticatorFactory implements AuthenticatorFactory {
+  public static final String PROVIDER_ID = "remove-required-action-authenticator";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
 
-  private static final RemoveActionsAuthenticator SINGLETON = new RemoveActionsAuthenticator();
+  private static final RemoveRequiredActionAuthenticator SINGLETON = new RemoveRequiredActionAuthenticator();
 
   @Override
   public void close() {
