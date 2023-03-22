@@ -33,7 +33,7 @@ public class TargetedUserModel implements UserModel {
   public static TargetedUserModel resolveFromContext(RequireRoleContext context) {
     TargetedUserModel targetedUser = new TargetedUserModel(context, context.getUser(), null);
 
-    if (context.getApplyToImpersonator()) {
+    if (context.getApplyToImpersonator().equals(Boolean.TRUE)) {
       KeycloakSession session = context.getSession();
       RealmModel realm = context.getRealm();
 
@@ -54,9 +54,9 @@ public class TargetedUserModel implements UserModel {
   }
 
   public boolean hasRequiredRole(final RequiredRoleModel requiredRole) {
-    if (requiredRole.getApplyToImpersonator()) {
+    if (requiredRole.getApplyToImpersonator().equals(Boolean.TRUE)) {
       if (userSession == null) { // impersonation is not active
-        return context.getEnforceStrictly() ? false : true; // fail if enforcing
+        return !context.getEnforceStrictly();
       }
 
       Set<RoleModel> clientRoles = context.getClient().getRolesStream()
@@ -71,15 +71,13 @@ public class TargetedUserModel implements UserModel {
         return true; // targeted user (impersonator) has required role
       }
     } else {
-      if (RoleUtils.hasRole(getRoleMappingsStream(), requiredRole)                       // cheap, try first
-          || RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(this), requiredRole)) { // expensive, try next
-        return true; // targeted user has required role
-      }
+      return RoleUtils.hasRole(getRoleMappingsStream(), requiredRole)                        // cheap, try first
+          || RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(this), requiredRole); // expensive, try next
     }
     return false; // targeted user does not have required role
   }
 
   private static Stream<RoleModel> getDeepRoleCompositesStream(final RoleModel role) { // helper function
-    return Stream.concat(Stream.of(role), role.getCompositesStream().flatMap(x -> getDeepRoleCompositesStream(x)));
+    return Stream.concat(Stream.of(role), role.getCompositesStream().flatMap(TargetedUserModel::getDeepRoleCompositesStream));
   }
 }

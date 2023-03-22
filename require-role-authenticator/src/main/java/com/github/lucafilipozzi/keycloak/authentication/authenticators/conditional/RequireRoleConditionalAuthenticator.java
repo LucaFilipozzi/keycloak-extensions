@@ -5,17 +5,15 @@ package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditio
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleContext;
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequiredRoleModel;
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.TargetedUserModel;
-import org.jboss.logging.Logger;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticator;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
+@JBossLog
 public class RequireRoleConditionalAuthenticator implements ConditionalAuthenticator {
-
-  private static final Logger LOG = Logger.getLogger(RequireRoleConditionalAuthenticator.class);
-
   @Override
   public void action(AuthenticationFlowContext context) {
     // intentionally empty
@@ -38,8 +36,8 @@ public class RequireRoleConditionalAuthenticator implements ConditionalAuthentic
     }
 
     LOG.infof("checking whether user '%s' has role '%s'", targetedUser.getUsername(), requiredRole.getName());
-    Boolean result = targetedUser.hasRequiredRole(requiredRole);
-    if (context.getNegateResult()) {
+    boolean result = targetedUser.hasRequiredRole(requiredRole);
+    if (context.getNegateResult().equals(Boolean.TRUE)) {
       LOG.info("negating result");
       result = !result;
     }

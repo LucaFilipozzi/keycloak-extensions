@@ -34,7 +34,9 @@ public class RequiredRoleModel implements RoleModel {
     }
 
     if (requiredRoleName.startsWith(RequireRoleConstants.CLIENT_ID_PLACEHOLDER)) {
-      requiredRoleName = requiredRoleName.replace(RequireRoleConstants.CLIENT_ID_PLACEHOLDER, context.getClient().getClientId());
+      requiredRoleName = requiredRoleName.replace(
+          RequireRoleConstants.CLIENT_ID_PLACEHOLDER,
+          context.getClient().getClientId());
     }
 
     RoleModel role = KeycloakModelUtils.getRoleFromString(context.getRealm(), requiredRoleName);

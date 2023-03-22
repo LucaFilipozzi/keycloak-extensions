@@ -4,7 +4,6 @@ package com.github.lucafilipozzi.keycloak.authentication.authenticators.access;
 
 import java.util.Collections;
 import java.util.List;
-import org.jboss.logging.Logger;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
@@ -14,11 +13,9 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
 public class ForceReauthenticationAuthenticatorFactory implements AuthenticatorFactory {
-  private static final Logger LOGGER = Logger.getLogger(ForceReauthenticationAuthenticatorFactory.class);
+  public static final String PROVIDER_ID = "force-reauthentication";
 
-  private static final String PROVIDER_ID = "force-reauthentication";
-
-  public static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
 
   private static final ForceReauthenticationAuthenticator SINGLETON = new ForceReauthenticationAuthenticator();
 

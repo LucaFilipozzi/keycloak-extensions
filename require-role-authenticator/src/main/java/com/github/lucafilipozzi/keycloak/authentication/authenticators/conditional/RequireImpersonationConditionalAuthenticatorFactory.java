@@ -3,7 +3,6 @@
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional;
 
 import java.util.List;
-import org.jboss.logging.Logger;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel.Requirement;
@@ -12,15 +11,13 @@ import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 
 public class RequireImpersonationConditionalAuthenticatorFactory implements ConditionalAuthenticatorFactory {
-  private static final Logger LOGGER = Logger.getLogger(RequireImpersonationConditionalAuthenticatorFactory.class);
-
-  private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
-
-  private static final String PROVIDER_ID = "conditional-require-impersonation";
+  public static final String PROVIDER_ID = "conditional-require-impersonation";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
 
   private static final RequireImpersonationConditionalAuthenticator SINGLETON = new RequireImpersonationConditionalAuthenticator();
+
+  private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
 
   static {
     CONFIG_PROPERTIES = ProviderConfigurationBuilder.create()

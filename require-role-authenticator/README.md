@@ -10,7 +10,7 @@ Thus, this authenticator may be used similarly to Thomas' by requiring a user
 to have the specified role in order for access to proceed.
 
 But it may also be used to require that an impersonator have a role. When
-applied on a client-basis, this allow for client-by-client impersonation
+applied on a client-basis, this allows for client-by-client impersonation
 control.
 
 This authenticator will add to user session notes the array of client roles
@@ -39,7 +39,7 @@ This authenticator exposes two configuration parameters:
                            a realm or client role. Client roles have the form
                            'clientId.roleName' for a specific client.
                            Alternately, the expression '${clientId}.roleName'
-                           may be used to specify a role of the current client. 
+                           may be used to specify a role of the current client.
 
 Note that if the required role name does not resolve to a role, then the
 authentication will fail.

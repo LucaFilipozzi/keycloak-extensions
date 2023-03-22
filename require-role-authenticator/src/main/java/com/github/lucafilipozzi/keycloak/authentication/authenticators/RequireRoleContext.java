@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Delegate;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.models.ClientModel;
-import org.keycloak.models.RoleModel;
-import org.keycloak.models.utils.KeycloakModelUtils;
 
 @RequiredArgsConstructor
 public class RequireRoleContext {

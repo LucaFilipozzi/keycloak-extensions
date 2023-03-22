@@ -8,17 +8,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import org.jboss.logging.Logger;
-import org.keycloak.OAuth2Constants;
-import org.keycloak.authentication.AuthenticatorUtil;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.authenticators.browser.CookieAuthenticator;
-import org.keycloak.authentication.authenticators.util.AcrStore;
-import org.keycloak.models.AuthenticatorConfigModel;
 import org.keycloak.models.ClientModel;
-import org.keycloak.models.Constants;
 import org.keycloak.models.ImpersonationSessionNote;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
@@ -26,16 +21,11 @@ import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserSessionModel;
 import org.keycloak.models.utils.RoleUtils;
-import org.keycloak.protocol.oidc.OIDCLoginProtocol;
-import org.keycloak.protocol.saml.SamlProtocol;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.AuthenticationManager.AuthResult;
-import org.keycloak.services.messages.Messages;
-import org.keycloak.sessions.AuthenticationSessionModel;
 
+@JBossLog
 public class ExtendedCookieAuthenticator extends CookieAuthenticator implements Authenticator {
-  private static final Logger LOG = Logger.getLogger(ExtendedCookieAuthenticator.class);
-
   @Override
   public void authenticate(AuthenticationFlowContext context) {
     RealmModel realm = context.getRealm();
@@ -90,6 +80,6 @@ public class ExtendedCookieAuthenticator extends CookieAuthenticator implements 
   }
 
   private static Stream<RoleModel> getDeepRoleCompositesStream(final RoleModel role) { // helper function
-    return Stream.concat(Stream.of(role), role.getCompositesStream().flatMap(x -> getDeepRoleCompositesStream(x)));
+    return Stream.concat(Stream.of(role), role.getCompositesStream().flatMap(ExtendedCookieAuthenticator::getDeepRoleCompositesStream));
   }
 }

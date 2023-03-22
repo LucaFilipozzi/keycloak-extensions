@@ -2,7 +2,7 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional;
 
-import org.jboss.logging.Logger;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticator;
 import org.keycloak.models.ImpersonationSessionNote;
@@ -12,10 +12,9 @@ import org.keycloak.models.UserModel;
 import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 
+@JBossLog
 public class RequireImpersonationConditionalAuthenticator implements ConditionalAuthenticator {
-  private static final Logger LOG = Logger.getLogger(RequireImpersonationConditionalAuthenticator.class);
-
-  public static String NEGATE_RESULT = "negateResult";
+  public static final String NEGATE_RESULT = "negateResult";
 
   @Override
   public void action(AuthenticationFlowContext context) {
@@ -32,9 +31,9 @@ public class RequireImpersonationConditionalAuthenticator implements Conditional
     boolean negateResult = Boolean.parseBoolean(context.getAuthenticatorConfig().getConfig().get(NEGATE_RESULT));
     AuthResult authResult = AuthenticationManager.authenticateIdentityCookie(context.getSession(), context.getRealm(), true);
     if (authResult != null && authResult.getSession().getNotes().containsKey(ImpersonationSessionNote.IMPERSONATOR_ID.toString())) {
-      return negateResult ? false : true;
+      return !negateResult;
     }
-    return negateResult ? true : false;
+    return negateResult;
   }
 
   @Override

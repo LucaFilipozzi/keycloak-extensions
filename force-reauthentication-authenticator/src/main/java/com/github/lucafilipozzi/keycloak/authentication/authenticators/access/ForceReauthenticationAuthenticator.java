@@ -2,7 +2,7 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.access;
 
-import org.jboss.logging.Logger;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.authenticators.util.AcrStore;
@@ -14,10 +14,8 @@ import org.keycloak.services.managers.AuthenticationManager;
 import org.keycloak.services.messages.Messages;
 import org.keycloak.sessions.AuthenticationSessionModel;
 
+@JBossLog
 public class ForceReauthenticationAuthenticator implements Authenticator {
-
-  private static final Logger LOG = Logger.getLogger(ForceReauthenticationAuthenticator.class);
-
   @Override
   public void action(AuthenticationFlowContext context) {
     // intentionally empty

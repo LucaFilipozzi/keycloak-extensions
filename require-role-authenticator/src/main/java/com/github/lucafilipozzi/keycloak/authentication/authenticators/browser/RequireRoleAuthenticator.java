@@ -7,7 +7,7 @@ import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequiredR
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.TargetedUserModel;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import org.jboss.logging.Logger;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
 import org.keycloak.authentication.Authenticator;
@@ -15,10 +15,8 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
+@JBossLog
 public class RequireRoleAuthenticator implements Authenticator {
-
-  private static final Logger LOG = Logger.getLogger(RequireRoleAuthenticator.class);
-
   @Override
   public void action(AuthenticationFlowContext context) {
     // intentionally empty
@@ -38,8 +36,8 @@ public class RequireRoleAuthenticator implements Authenticator {
     }
 
     LOG.infof("checking whether user '%s' has role '%s'", targetedUser.getUsername(), requiredRole.getName());
-    Boolean result = targetedUser.hasRequiredRole(requiredRole);
-    if (context.getNegateResult()) {
+    boolean result = targetedUser.hasRequiredRole(requiredRole);
+    if (context.getNegateResult().equals(Boolean.TRUE)) {
       LOG.info("negating result");
       result = !result;
     }

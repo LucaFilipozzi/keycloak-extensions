@@ -2,7 +2,7 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
-import org.jboss.logging.Logger;
+import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.KeycloakSession;
@@ -10,9 +10,8 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.UserModel.RequiredAction;
 
+@JBossLog
 public class RemoveRequiredActionAuthenticator implements Authenticator {
-  private static final Logger LOG = Logger.getLogger(RemoveRequiredActionAuthenticator.class);
-
   @Override
   public void action(AuthenticationFlowContext context) {
     // intentionally empty
@@ -27,6 +26,7 @@ public class RemoveRequiredActionAuthenticator implements Authenticator {
     user.getRequiredActionsStream().forEach(x -> LOG.infof("authenticate: requiredAction=%s", x));
     user.removeRequiredAction(RequiredAction.UPDATE_PASSWORD);
     LOG.info("authenticate: after");
+
     LOG.info("authenticate - success");
     context.success();
   }

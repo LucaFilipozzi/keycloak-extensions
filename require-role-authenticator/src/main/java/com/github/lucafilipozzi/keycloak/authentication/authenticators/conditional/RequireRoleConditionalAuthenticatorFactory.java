@@ -4,7 +4,6 @@ package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditio
 
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleConstants;
 import java.util.List;
-import org.jboss.logging.Logger;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticatorFactory;
 import org.keycloak.models.AuthenticationExecutionModel.Requirement;
@@ -12,9 +11,7 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
 public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAuthenticatorFactory {
-  private static final Logger LOGGER = Logger.getLogger(RequireRoleConditionalAuthenticatorFactory.class);
-
-  private static final String PROVIDER_ID = "conditional-require-role";
+  public static final String PROVIDER_ID = "conditional-require-role";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
 

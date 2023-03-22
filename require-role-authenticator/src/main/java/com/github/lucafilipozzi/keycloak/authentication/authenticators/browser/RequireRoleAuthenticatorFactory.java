@@ -4,7 +4,6 @@ package com.github.lucafilipozzi.keycloak.authentication.authenticators.browser;
 
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleConstants;
 import java.util.List;
-import org.jboss.logging.Logger;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
@@ -14,11 +13,9 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
 public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
-  private static final Logger LOGGER = Logger.getLogger(RequireRoleAuthenticatorFactory.class);
+  public static final String PROVIDER_ID = "require-role";
 
-  private static final String PROVIDER_ID = "require-role";
-
-  public static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.ALTERNATIVE, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.ALTERNATIVE, Requirement.DISABLED };
 
   private static final RequireRoleAuthenticator SINGLETON = new RequireRoleAuthenticator();
 
