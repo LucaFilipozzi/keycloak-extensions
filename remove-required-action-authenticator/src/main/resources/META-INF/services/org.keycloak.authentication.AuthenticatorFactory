@@ -1,3 +1,4 @@
 # Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
 
-com.github.lucafilipozzi.keycloak.authentication.authenticators.RemoveRequiredActionAuthenticatorFactory
+com.github.lucafilipozzi.keycloak.authentication.authenticators.DeleteRequiredActionAuthenticatorFactory
+com.github.lucafilipozzi.keycloak.authentication.authenticators.InsertRequiredActionAuthenticatorFactory

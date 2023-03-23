@@ -11,7 +11,7 @@ import org.keycloak.models.UserModel;
 import org.keycloak.models.UserModel.RequiredAction;
 
 @JBossLog
-public class RemoveRequiredActionAuthenticator implements Authenticator {
+public class DeleteRequiredActionAuthenticator implements Authenticator {
   @Override
   public void action(AuthenticationFlowContext context) {
     // intentionally empty
@@ -19,15 +19,12 @@ public class RemoveRequiredActionAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
-    LOG.infof("authenticate: %s", context);
     UserModel user = context.getUser();
-
-    LOG.info("authenticate: before");
-    user.getRequiredActionsStream().forEach(x -> LOG.infof("authenticate: requiredAction=%s", x));
-    user.removeRequiredAction(RequiredAction.UPDATE_PASSWORD);
-    LOG.info("authenticate: after");
-
-    LOG.info("authenticate - success");
+    if (user.getRequiredActionsStream()
+        .anyMatch(x -> x.equals(RequiredAction.UPDATE_PASSWORD.name()))) {
+      user.removeRequiredAction(RequiredAction.UPDATE_PASSWORD);
+      user.setSingleAttribute(RequiredActionsConstants.DEFER_UPDATE_PASSWORD, "true");
+    }
     context.success();
   }
 

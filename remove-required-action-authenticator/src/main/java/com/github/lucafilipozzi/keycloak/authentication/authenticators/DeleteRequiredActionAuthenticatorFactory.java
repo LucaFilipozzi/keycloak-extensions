@@ -12,12 +12,12 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-public class RemoveRequiredActionAuthenticatorFactory implements AuthenticatorFactory {
-  public static final String PROVIDER_ID = "remove-required-action-authenticator";
+public class DeleteRequiredActionAuthenticatorFactory implements AuthenticatorFactory {
+  public static final String PROVIDER_ID = "delete-required-action-authenticator";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
 
-  private static final RemoveRequiredActionAuthenticator SINGLETON = new RemoveRequiredActionAuthenticator();
+  private static final DeleteRequiredActionAuthenticator SINGLETON = new DeleteRequiredActionAuthenticator();
 
   @Override
   public void close() {
@@ -36,12 +36,12 @@ public class RemoveRequiredActionAuthenticatorFactory implements AuthenticatorFa
 
   @Override
   public String getDisplayType() {
-    return "Remove Actions";
+    return "delete required action";
   }
 
   @Override
   public String getHelpText() {
-    return "Remove Actions from user.";
+    return "delete required action from user";
   }
 
   @Override
