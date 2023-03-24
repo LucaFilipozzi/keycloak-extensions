@@ -15,8 +15,8 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-public class SelectRoleAuthenticatorFactory implements AuthenticatorFactory {
-  public static final String PROVIDER_ID = "select-role-authenticator";
+public class SelectClientUsernameAuthenticatorFactory implements AuthenticatorFactory {
+  public static final String PROVIDER_ID = "select-client-username-authenticator";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
 
@@ -27,17 +27,17 @@ public class SelectRoleAuthenticatorFactory implements AuthenticatorFactory {
 
   @Override
   public Authenticator create(KeycloakSession session) {
-    return new SelectRoleAuthenticator();
+    return new SelectClientUsernameAuthenticator();
   }
 
   @Override
   public String getDisplayType() {
-    return "select role";
+    return "select client username form";
   }
 
   @Override
   public String getHelpText() {
-    return "ask user to select role";
+    return "ask user to select client username";
   }
 
   @Override

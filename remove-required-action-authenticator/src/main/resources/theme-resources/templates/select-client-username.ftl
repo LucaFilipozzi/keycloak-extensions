@@ -2,19 +2,19 @@
 <#import "template.ftl" as layout>
 <@layout.registrationLayout displayInfo=true; section>
   <#if section = "title">
-    select role
+    select client username
   <#elseif section = "header">
-    select role
+    select client username
   <#elseif section = "form">
-    <form action="${url.loginAction}" class="${properties.kcFormClass!}" id="select-role-form" method="post">
+    <form action="${url.loginAction}" class="${properties.kcFormClass!}" id="select-client-username-form" method="post">
       <div class="${properties.kcFormGroupClass!}">
         <div class="${properties.kcInputWrapperClass!}">
-          <#list availableRoles>
+          <#list availableClientUsernames>
             <fieldset>
-              <#items as availableRole>
-                <div><!-- TODO apply classes -->
-                  <input type="radio" name="selectedRole" id="selectedRole-${availableRole_index}" value="${availableRole}" required="true"/>
-                  <label for="selectedRole-${availableRole_index}">${availableRole}</label>
+              <#items as availableClientUsername>
+                <div>
+                  <input type="radio" name="selectedClientUsername" id="selectedClientUsername-${availableClientUsername_index}" value="${availableClientUsername}" required="true"/>
+                  <label for="selectedClientUsername-${availableClientUsername_index}">${availableClientUsername}</label>
                 </div>
               </#items>
             </fieldset>
