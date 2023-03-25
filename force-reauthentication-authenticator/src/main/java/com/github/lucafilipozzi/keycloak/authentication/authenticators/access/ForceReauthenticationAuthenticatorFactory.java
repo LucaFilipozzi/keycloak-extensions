@@ -2,6 +2,9 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.access;
 
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
+
 import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config.Scope;
@@ -15,7 +18,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class ForceReauthenticationAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "force-reauthentication";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
 
   private static final ForceReauthenticationAuthenticator SINGLETON = new ForceReauthenticationAuthenticator();
 
@@ -51,7 +54,7 @@ public class ForceReauthenticationAuthenticatorFactory implements AuthenticatorF
 
   @Override
   public String getReferenceCategory() {
-    return null;
+    return "cookie";
   }
 
   @Override
