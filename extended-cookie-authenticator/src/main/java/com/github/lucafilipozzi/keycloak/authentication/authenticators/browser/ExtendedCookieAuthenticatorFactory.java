@@ -2,6 +2,10 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.browser;
 
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.ALTERNATIVE;
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
+
 import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config.Scope;
@@ -15,7 +19,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "extended-cookie-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.ALTERNATIVE, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, ALTERNATIVE, DISABLED };
 
   private static final ExtendedCookieAuthenticator SINGLETON = new ExtendedCookieAuthenticator();
 
@@ -41,7 +45,7 @@ public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory 
 
   @Override
   public String getHelpText() {
-    return "Extends Cookie to handle impersonators.";
+    return "extends Cookie to handle impersonators";
   }
 
   @Override
@@ -66,7 +70,7 @@ public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory 
 
   @Override
   public boolean isConfigurable() {
-    return true;
+    return false;
   }
 
   @Override

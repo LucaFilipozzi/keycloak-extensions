@@ -26,30 +26,34 @@ import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 
 @JBossLog
 public class ExtendedCookieAuthenticator extends CookieAuthenticator implements Authenticator {
+  private static final String IMPERSONATOR_ID = ImpersonationSessionNote.IMPERSONATOR_ID.toString();
+
+  private static final String IMPERSONATOR_ROLES = "IMPERSONATOR_ROLES";
+
   @Override
   public void authenticate(AuthenticationFlowContext context) {
     RealmModel realm = context.getRealm();
     KeycloakSession session = context.getSession();
     AuthResult authResult = AuthenticationManager.authenticateIdentityCookie(session, realm, true);
     if (authResult == null) {
-      LOG.info("authentication by cookie failed");
+      LOG.debug("authentication by cookie failed");
       context.attempted();
       return;
     }
 
-    LOG.info("authentication by cookie succeeded");
+    LOG.debug("authentication by cookie succeeded");
     UserSessionModel userSession = authResult.getSession();
-    if (!userSession.getNotes().containsKey(ImpersonationSessionNote.IMPERSONATOR_ID.toString())) {
-      LOG.info("impersonation not active");
+    if (!userSession.getNotes().containsKey(IMPERSONATOR_ID)) {
+      LOG.debug("impersonation not active");
       super.authenticate(context);
       return;
     }
 
-    String impersonatorId = userSession.getNotes().get(ImpersonationSessionNote.IMPERSONATOR_ID.toString());
+    String impersonatorId = userSession.getNotes().get(IMPERSONATOR_ID);
     UserModel impersonator = session.users().getUserById(realm, impersonatorId);
     RoleModel requiredRole = realm.getClientByClientId("realm-management").getRole("impersonation");
     if (impersonator == null || requiredRole == null) {
-      LOG.info("internal error");
+      LOG.debug("internal error");
       Response response = context.form()
           .setError("Server Misconfiguration")
           .createErrorPage(Status.INTERNAL_SERVER_ERROR);
@@ -65,14 +69,14 @@ public class ExtendedCookieAuthenticator extends CookieAuthenticator implements 
     Set<RoleModel> impersonatorRoles = RoleUtils.getDeepUserRoleMappings(impersonator);
     Set<RoleModel> roleIntersection = Sets.intersection(clientRoles, impersonatorRoles);
     if (!roleIntersection.isEmpty()) {
-      LOG.info("access granted to impersonator");
-      String roles = roleIntersection.stream().map(RoleModel::getName).collect(Collectors.joining(","));
-      userSession.setNote("IMPERSONATOR_ROLES", roles);
+      LOG.debug("access granted to impersonator");
+      userSession.setNote(IMPERSONATOR_ROLES, roleIntersection.stream()
+        .map(RoleModel::getName).collect(Collectors.joining(",")));
       super.authenticate(context);
       return;
     }
 
-    LOG.info("access denied to impersonator");
+    LOG.debug("access denied to impersonator");
     Response response = context.form()
         .setError("Impersonator Access Denied")
         .createErrorPage(Status.FORBIDDEN);
