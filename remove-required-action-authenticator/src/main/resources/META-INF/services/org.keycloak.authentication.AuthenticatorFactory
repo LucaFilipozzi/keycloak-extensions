@@ -3,4 +3,3 @@
 com.github.lucafilipozzi.keycloak.authentication.authenticators.DeleteRequiredActionAuthenticatorFactory
 com.github.lucafilipozzi.keycloak.authentication.authenticators.InsertRequiredActionAuthenticatorFactory
 com.github.lucafilipozzi.keycloak.authentication.authenticators.SelectClientUsernameAuthenticatorFactory
-com.github.lucafilipozzi.keycloak.authentication.authenticators.UsernamePolicyAuthenticatorFactory

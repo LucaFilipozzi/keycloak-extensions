@@ -38,6 +38,7 @@
     <module>remove-required-action-authenticator</module>
     <module>force-reauthentication-authenticator</module>
     <module>require-role-authenticator</module>
+    <module>username-policy-authenticator</module>
   </modules>
 
   <dependencyManagement>
