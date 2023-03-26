@@ -2,10 +2,11 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
+import static com.github.lucafilipozzi.keycloak.authentication.authenticators.CacheRequiredActionsAuthenticator.RESTORE_PROPERTY_ID;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
+import static org.keycloak.provider.ProviderConfigProperty.BOOLEAN_TYPE;
 
-import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
@@ -14,13 +15,29 @@ import org.keycloak.models.AuthenticationExecutionModel.Requirement;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
+import org.keycloak.provider.ProviderConfigurationBuilder;
 
-public class InsertRequiredActionsAuthenticatorFactory implements AuthenticatorFactory {
-  public static final String PROVIDER_ID = "insert-required-action-authenticator";
+public class CacheRequiredActionsAuthenticatorFactory implements AuthenticatorFactory {
+  public static final String PROVIDER_ID = "cache-required-actions-authenticator";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
 
-  private static final InsertRequiredActionsAuthenticator SINGLETON = new InsertRequiredActionsAuthenticator();
+  private static final CacheRequiredActionsAuthenticator SINGLETON = new CacheRequiredActionsAuthenticator();
+
+  private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
+
+  static {
+    CONFIG_PROPERTIES = ProviderConfigurationBuilder
+        .create()
+        .property()
+        .name(RESTORE_PROPERTY_ID)
+        .type(BOOLEAN_TYPE)
+        .defaultValue("false")
+        .label("restore")
+        .helpText("whether to cache (default; false) or restore (true)")
+        .add()
+        .build();
+  }
 
   @Override
   public void close() {
@@ -34,17 +51,17 @@ public class InsertRequiredActionsAuthenticatorFactory implements AuthenticatorF
 
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
-    return Collections.emptyList();
+    return CONFIG_PROPERTIES;
   }
 
   @Override
   public String getDisplayType() {
-    return "insert required action";
+    return "cache required actions";
   }
 
   @Override
   public String getHelpText() {
-    return "insert required action to user";
+    return "delete required actions from user";
   }
 
   @Override
@@ -69,7 +86,7 @@ public class InsertRequiredActionsAuthenticatorFactory implements AuthenticatorF
 
   @Override
   public boolean isConfigurable() {
-    return false;
+    return true;
   }
 
   @Override
