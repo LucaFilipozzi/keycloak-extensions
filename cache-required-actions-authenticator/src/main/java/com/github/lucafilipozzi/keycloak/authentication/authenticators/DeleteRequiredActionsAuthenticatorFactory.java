@@ -2,6 +2,9 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
+
 import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config.Scope;
@@ -12,12 +15,12 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
-public class InsertRequiredActionAuthenticatorFactory implements AuthenticatorFactory {
-  public static final String PROVIDER_ID = "insert-required-action-authenticator";
+public class DeleteRequiredActionsAuthenticatorFactory implements AuthenticatorFactory {
+  public static final String PROVIDER_ID = "delete-required-action-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
 
-  private static final InsertRequiredActionAuthenticator SINGLETON = new InsertRequiredActionAuthenticator();
+  private static final DeleteRequiredActionsAuthenticator SINGLETON = new DeleteRequiredActionsAuthenticator();
 
   @Override
   public void close() {
@@ -36,12 +39,12 @@ public class InsertRequiredActionAuthenticatorFactory implements AuthenticatorFa
 
   @Override
   public String getDisplayType() {
-    return "insert required action";
+    return "delete required actions";
   }
 
   @Override
   public String getHelpText() {
-    return "insert required action to user";
+    return "delete required actions from user";
   }
 
   @Override
@@ -66,7 +69,7 @@ public class InsertRequiredActionAuthenticatorFactory implements AuthenticatorFa
 
   @Override
   public boolean isConfigurable() {
-    return true;
+    return false;
   }
 
   @Override

@@ -8,10 +8,13 @@ import org.keycloak.authentication.Authenticator;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.models.UserModel.RequiredAction;
 
 @JBossLog
-public class InsertRequiredActionAuthenticator implements Authenticator {
+public class InsertRequiredActionsAuthenticator implements Authenticator {
+  public static final String PREFIX = DeleteRequiredActionsAuthenticator.PREFIX;
+
+  private static final int LENGTH = PREFIX.length();
+
   @Override
   public void action(AuthenticationFlowContext context) {
     // intentionally empty
@@ -20,11 +23,11 @@ public class InsertRequiredActionAuthenticator implements Authenticator {
   @Override
   public void authenticate(AuthenticationFlowContext context) {
     UserModel user = context.getUser();
-    if (user.getAttributeStream(RequiredActionsConstants.DEFER_UPDATE_PASSWORD)
-      .anyMatch(x -> x.equals("true"))) {
-      user.removeAttribute( RequiredActionsConstants.DEFER_UPDATE_PASSWORD);
-      user.addRequiredAction(RequiredAction.UPDATE_PASSWORD);
-    }
+    user.getAttributes().keySet().stream()
+        .filter(attribute -> attribute.startsWith(PREFIX))
+        .forEach(attribute -> {
+            user.removeAttribute(attribute);
+            user.addRequiredAction(attribute.substring(LENGTH)); } );
     context.success();
   }
 
