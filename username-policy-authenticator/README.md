@@ -8,8 +8,9 @@ pattern (regular expression).
 
 ## usage
 
-Add this authenticator to a _First Login_ flow. Use a username mapper
-to define which claim / assertion should be considered the username.
+Add this authenticator to a _First Login_ flow. Use a identity provider
+username mapper to define which claim / assertion should be considered
+the username.
 
 ---
 Copyright 2023 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
