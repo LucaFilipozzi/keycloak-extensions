@@ -37,7 +37,6 @@
     <module>extended-cookie-authenticator</module>
     <module>cache-required-actions-authenticator</module>
     <module>force-reauthentication-authenticator</module>
-    <module>require-role-authenticator</module>
     <module>select-client-username-authenticator</module>
     <module>username-policy-authenticator</module>
   </modules>
