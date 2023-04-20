@@ -4,6 +4,7 @@ package com.github.lucafilipozzi.keycloak.credential.hash;
 
 import static com.github.lucafilipozzi.keycloak.credential.hash.Md5CryptPasswordHashProviderFactory.PROVIDER_ID;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
@@ -16,31 +17,31 @@ public class Md5CryptPasswordHashProvider implements PasswordHashProvider {
   }
 
   @Override
-  public PasswordCredentialModel encodedCredential(String rawPassword, int hashIterations) {
-    // hashIterations arg is not used because md5Crypt() has fixed (1000) iterations
-    // salt is not used because md5Crypt() generates and prepends it to the computed hash
-    return PasswordCredentialModel.createFromValues(
-        PROVIDER_ID,
-        new byte[0],
-        0,
-        Md5Crypt.md5Crypt(rawPassword.getBytes()));
+  public PasswordCredentialModel encodedCredential(String password, int iterations) {
+    return PasswordCredentialModel.createFromValues(PROVIDER_ID, new byte[0], 0, md5Crypt(password));
   }
 
   @Override
-  public String encode(String rawPassword, int hashIterations) {
-    // hashIterations arg is not used because md5Crypt has fixed (1000) iterations
-    return Md5Crypt.md5Crypt(rawPassword.getBytes());
+  public String encode(String password, int iterations) {
+    return md5Crypt(password);
   }
 
   @Override
-  public boolean verify(String rawPassword, PasswordCredentialModel credential) {
-    String expected = credential.getPasswordSecretData().getValue(); // pass as salt to md5Crypt()
-    String computed = Md5Crypt.md5Crypt(rawPassword.getBytes(), expected);
-    return computed.equals(expected);
+  public boolean verify(String password, PasswordCredentialModel credential) {
+    String hash = credential.getPasswordSecretData().getValue();
+    return md5Crypt(password, hash).equals(hash);
   }
 
   @Override
   public void close() {
     // intentionally empty
+  }
+
+  private String md5Crypt(String password) {
+    return Md5Crypt.md5Crypt(password.getBytes(StandardCharsets.UTF_8));
+  }
+
+  private String md5Crypt(String password, String salt) {
+    return Md5Crypt.md5Crypt(password.getBytes(StandardCharsets.UTF_8), salt);
   }
 }

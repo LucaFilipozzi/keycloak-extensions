@@ -17,11 +17,11 @@ import org.keycloak.models.credential.PasswordCredentialModel;
 @RunWith(Parameterized.class)
 public class Md5CryptPasswordHashProviderTest {
   private Md5CryptPasswordHashProvider provider;
-  private final String rawPassword;
+  private final String password;
   private final String expected;
 
-  public Md5CryptPasswordHashProviderTest(String rawPassword, String expected) {
-    this.rawPassword = rawPassword;
+  public Md5CryptPasswordHashProviderTest(String password, String expected) {
+    this.password = password;
     this.expected = expected;
   }
 
@@ -41,14 +41,10 @@ public class Md5CryptPasswordHashProviderTest {
 
   @Test
   public void test() {
-    String computed = Md5Crypt.md5Crypt(rawPassword.getBytes(), expected);
-    PasswordCredentialModel credential = PasswordCredentialModel.createFromValues(
-        PROVIDER_ID, new byte[0], 0, computed);
-    assertThat(computed,
-    is(equalTo(expected)));
-    assertThat(credential.getPasswordSecretData().getValue(),
-    is(equalTo(expected)));
-    assertThat(provider.verify(rawPassword, credential),
-    is(equalTo(true)));
+    String computed = Md5Crypt.md5Crypt(password.getBytes(), expected);
+    PasswordCredentialModel credential = PasswordCredentialModel.createFromValues(PROVIDER_ID, new byte[0], 0, computed);
+    assertThat(computed, is(equalTo(expected)));
+    assertThat(credential.getPasswordSecretData().getValue(), is(equalTo(expected)));
+    assertThat(provider.verify(password, credential), is(equalTo(true)));
   }
 }
