@@ -4,8 +4,8 @@ package com.github.lucafilipozzi.keycloak.credential.hash;
 
 import static com.github.lucafilipozzi.keycloak.credential.hash.Md5CryptPasswordHashProviderFactory.PROVIDER_ID;
 
-import java.security.SecureRandom;
 import org.apache.commons.codec.digest.Crypt;
+import org.apache.commons.lang.RandomStringUtils;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.credential.PasswordCredentialModel;
@@ -17,23 +17,27 @@ public class Md5CryptPasswordHashProvider implements PasswordHashProvider {
   }
 
   @Override
-  public PasswordCredentialModel encodedCredential(String password, int iterations) {
-    // iterations is unused because Md5Crypt has a fixed number of iterations (1000)
-    byte[] salt = generateSalt();
-    String hash = generateHash(password, salt);
-    return PasswordCredentialModel.createFromValues(PROVIDER_ID, salt, iterations, hash);
+  public PasswordCredentialModel encodedCredential(String rawPassword, int iterations) {
+    final byte[] salt = new byte[0]; // unused: encodedPassword contains the salt: $1$«salt»$«hash»
+    final int hashIterations = 0;    // unused: since Md5Crypt has fixed number of iterations
+    return PasswordCredentialModel.createFromValues(
+        PROVIDER_ID,
+        salt,
+        hashIterations,
+        generateEncodedPassword(rawPassword, generateRandomSalt())
+    );
   }
 
   @Override
-  public String encode(String password, int iterations) { // XXX is this ever used?
-    // iterations is unused because Md5Crypt has a fixed number of iterations (1000)
-    return generateHash(password, generateSalt());
+  public String encode(String rawPassword, int hashIterations) {
+    return generateEncodedPassword(rawPassword, generateRandomSalt());
   }
 
   @Override
-  public boolean verify(String password, PasswordCredentialModel credential) {
-    return credential.getPasswordSecretData().getValue().equals(
-        generateHash(password, credential.getPasswordSecretData().getSalt()));
+  public boolean verify(String rawPassword, PasswordCredentialModel credential) {
+    String encodedPassword = credential.getPasswordSecretData().getValue();
+    String salt = encodedPassword.substring(0, 11); // salt is embedded in encodedPassword
+    return encodedPassword.equals(generateEncodedPassword(rawPassword, salt));
   }
 
   @Override
@@ -41,14 +45,11 @@ public class Md5CryptPasswordHashProvider implements PasswordHashProvider {
     // intentionally empty
   }
 
-  byte[] generateSalt() {
-    byte[] buffer = new byte[8];
-    SecureRandom secureRandom = new SecureRandom();
-    secureRandom.nextBytes(buffer);
-    return buffer;
+  String generateRandomSalt() {
+    return "$1$" + RandomStringUtils.randomAlphanumeric(8);
   }
 
-  String generateHash(String password, byte[] salt) {
-    return Crypt.crypt(password, String.format("$1$%s", new String(salt))).split("\\$")[3];
+  String generateEncodedPassword(String password, String salt) {
+    return Crypt.crypt(password, salt); // salt must have $1$ prefix
   }
 }

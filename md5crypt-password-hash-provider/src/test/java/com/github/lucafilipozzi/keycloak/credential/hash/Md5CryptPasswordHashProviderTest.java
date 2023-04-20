@@ -3,33 +3,43 @@ package com.github.lucafilipozzi.keycloak.credential.hash;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
+import org.junit.runner.RunWith;
 
+@RunWith(Parameterized.class)
 public class Md5CryptPasswordHashProviderTest {
-  @Test
-  public void test1() {
-    Md5CryptPasswordHashProvider provider = new Md5CryptPasswordHashProvider();
-    String pass = "testingonly$$1234";
-    String salt = "PhQy/mw.";
-    String hash = "dDp.eDLeG6H0gz.WlhNV./";
-    assertThat(provider.generateHash(pass, salt.getBytes()), is(equalTo(hash)));
+  private Md5CryptPasswordHashProvider provider;
+  private final String rawPassword;
+  private final String expected;
+
+  public Md5CryptPasswordHashProviderTest(String rawPassword, String expected) {
+    this.rawPassword = rawPassword;
+    this.expected = expected;
+  }
+
+  @Before
+  public void setUp() {
+    provider = new Md5CryptPasswordHashProvider();
+  }
+
+  @Parameters
+  public static List<Object[]> data() {
+    return Arrays.asList(new Object[][] {
+        { "testingonly$$1234", "$1$PhQy/mw.$dDp.eDLeG6H0gz.WlhNV./" },
+        { "Hello$$1234", "$1$v8ZrPcRS$mmBfzNIgRLnYO6jL3mWhr/" },
+        { "Wong$$5678", "$1$gr8/T6QQ$Yq/2P3RlGoTHIFmQJ.q1S/" }
+    });
   }
 
   @Test
-  public void test2() {
-    Md5CryptPasswordHashProvider provider = new Md5CryptPasswordHashProvider();
-    String pass = "Hello$$1234";
-    String salt = "v8ZrPcRS";
-    String hash = "mmBfzNIgRLnYO6jL3mWhr/";
-    assertThat(provider.generateHash(pass, salt.getBytes()), is(equalTo(hash)));
-  }
-
-  @Test
-  public void test3() {
-    Md5CryptPasswordHashProvider provider = new Md5CryptPasswordHashProvider();
-    String pass = "Wong$$5678";
-    String salt = "gr8/T6QQ";
-    String hash = "Yq/2P3RlGoTHIFmQJ.q1S/";
-    assertThat(provider.generateHash(pass, salt.getBytes()), is(equalTo(hash)));
+  public void testGenerateEncodedPassword() {
+    String salt = expected.substring(0, 11);
+    String computed = provider.generateEncodedPassword(rawPassword, salt);
+    assertThat(computed, is(equalTo(expected)));
   }
 }
