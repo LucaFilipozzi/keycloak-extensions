@@ -1,15 +1,18 @@
 package com.github.lucafilipozzi.keycloak.credential.hash;
 
+import static com.github.lucafilipozzi.keycloak.credential.hash.Md5CryptPasswordHashProviderFactory.PROVIDER_ID;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.codec.digest.Md5Crypt;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.junit.runner.RunWith;
+import org.keycloak.models.credential.PasswordCredentialModel;
 
 @RunWith(Parameterized.class)
 public class Md5CryptPasswordHashProviderTest {
@@ -23,7 +26,7 @@ public class Md5CryptPasswordHashProviderTest {
   }
 
   @Before
-  public void setUp() {
+  public void init() {
     provider = new Md5CryptPasswordHashProvider();
   }
 
@@ -37,9 +40,15 @@ public class Md5CryptPasswordHashProviderTest {
   }
 
   @Test
-  public void testGenerateEncodedPassword() {
-    String salt = expected.substring(0, 11);
-    String computed = provider.generateEncodedPassword(rawPassword, salt);
-    assertThat(computed, is(equalTo(expected)));
+  public void test() {
+    String computed = Md5Crypt.md5Crypt(rawPassword.getBytes(), expected);
+    PasswordCredentialModel credential = PasswordCredentialModel.createFromValues(
+        PROVIDER_ID, new byte[0], 0, computed);
+    assertThat(computed,
+    is(equalTo(expected)));
+    assertThat(credential.getPasswordSecretData().getValue(),
+    is(equalTo(expected)));
+    assertThat(provider.verify(rawPassword, credential),
+    is(equalTo(true)));
   }
 }
