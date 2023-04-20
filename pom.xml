@@ -37,12 +37,19 @@
     <module>extended-cookie-authenticator</module>
     <module>cache-required-actions-authenticator</module>
     <module>force-reauthentication-authenticator</module>
+    <module>md5crypt-password-hash-provider</module>
     <module>select-client-username-authenticator</module>
     <module>username-policy-authenticator</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+        <version>1.15</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-parent</artifactId>
