@@ -68,7 +68,6 @@ entered by a user against the stored md5crypt hash.
           }
         ]
       }
-      }
     ]
   }
 ]
