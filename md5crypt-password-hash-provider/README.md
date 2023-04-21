@@ -2,11 +2,8 @@
 
 ## description
 
-FIXME
-
-## usage
-
-FIXME
+This keycloak extension implements an md5crypt passowrd
+hash provider.
 
 ---
 Copyright 2023 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
