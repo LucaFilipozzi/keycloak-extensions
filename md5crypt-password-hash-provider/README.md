@@ -11,9 +11,9 @@ hash algorithm will be used used (pbkdf2-sha256) unless altered by an admin.
 
 Prepare a JSON file similar to that below containing the users to import into
 the the realm. Note that the `algorithm` attribute is set to `md5-crypt`, which
-is the PROVIDER_ID specified in Md5CryptPasswordHashProviderFactory. This is what
-instructs Keycloak to use Md5CryptPasswordHashProvider to verify the password
-entered by a user against the stored md5crypt hash.
+is the PROVIDER_ID specified in Md5CryptPasswordHashProviderFactory. This is
+what instructs Keycloak to use Md5CryptPasswordHashProvider to verify the
+password entered by a user against the stored md5crypt hash.
 
 ```json
 [
@@ -72,7 +72,6 @@ entered by a user against the stored md5crypt hash.
   }
 ]
 ```
-
 
 ---
 Copyright 2023 Luca Filipozzi. Some rights reserved. See [LICENSE][license].

@@ -2,9 +2,10 @@
 
 ## description
 
-This authenticator, when added to the cookie section of browser flow, forces reauthentication
-regardless of whether the OIDC (prompt=login) or the SAML (ForceAuthN=true) client requested it,
-placing the decision with the IdP operator rather than the SP operator.
+This authenticator, when added to the cookie section of browser flow, forces
+reauthentication regardless of whether the OIDC (prompt=login) or the SAML
+(ForceAuthN=true) client requested it, placing the decision with the IdP
+operator rather than the SP operator.
 
 ## usage
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
+// Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
 
 package com.github.lucafilipozzi.keycloak.credential.hash;
 

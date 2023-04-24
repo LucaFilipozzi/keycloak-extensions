@@ -2,14 +2,15 @@
 
 ## description
 
-This authenticator extends the delivered _Cookie_ authenticator by overriding
-the `authenticate` method such that, if the user session notes contain `IMPERSONATOR_ID`,
-then the impersonator is validated to have been assigned at least one client role that is
-composited, however deeply, from __realm-management.impersonation__.
+This _Browser_ authenticator extends the delivered _Cookie_ authenticator by
+overriding the `authenticate` method such that, if the user session notes
+contain `IMPERSONATOR_ID`, then the impersonator is validated to have been
+assigned at least one client role that is composited, however deeply, from
+__realm-management.impersonation__.
 
-If so, then the list of such assigned client roles is added as a `IMPERSONATOR_ROLES` user
-session note (for later use with the client _User Session Note Mapper_) and impersonation
-is granted.
+If so, then the list of such assigned client roles is added as a
+`IMPERSONATOR_ROLES` user session note (for later use with the client _User
+Session Note Mapper_) and impersonation is granted.
 
 If not, then impersonation is denied.
 
