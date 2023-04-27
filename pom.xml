@@ -39,6 +39,7 @@
     <module>force-reauthentication-authenticator</module>
     <module>md5crypt-password-hash-provider</module>
     <module>select-client-username-authenticator</module>
+    <module>update-password-event-listener-provider</module>
     <module>username-policy-authenticator</module>
   </modules>
 
