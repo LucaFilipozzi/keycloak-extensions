@@ -52,6 +52,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>com.google.auto.service</groupId>
+        <artifactId>auto-service</artifactId>
+        <version>1.0</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
         <groupId>org.keycloak</groupId>
         <artifactId>keycloak-parent</artifactId>
         <version>${keycloak.version}</version>
