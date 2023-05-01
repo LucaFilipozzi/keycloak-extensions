@@ -1,3 +1,0 @@
-# Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
-
-com.github.lucafilipozzi.keycloak.authentication.authenticators.browser.ExtendedCookieAuthenticatorFactory

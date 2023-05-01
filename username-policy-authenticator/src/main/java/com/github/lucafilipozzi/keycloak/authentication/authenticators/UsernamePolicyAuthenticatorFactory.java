@@ -7,6 +7,8 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISAB
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
 import java.util.List;
+
+import com.google.auto.service.AutoService;
 import lombok.NonNull;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
@@ -17,6 +19,7 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 
+@AutoService(AuthenticatorFactory.class)
 public class UsernamePolicyAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "username-policy-authenticator";
 

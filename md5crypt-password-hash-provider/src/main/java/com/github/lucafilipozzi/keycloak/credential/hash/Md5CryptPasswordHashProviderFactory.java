@@ -2,12 +2,14 @@
 
 package com.github.lucafilipozzi.keycloak.credential.hash;
 
+import com.google.auto.service.AutoService;
 import org.keycloak.Config.Scope;
 import org.keycloak.credential.hash.PasswordHashProvider;
 import org.keycloak.credential.hash.PasswordHashProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 
+@AutoService(PasswordHashProviderFactory.class)
 public class Md5CryptPasswordHashProviderFactory implements PasswordHashProviderFactory {
   public static final String PROVIDER_ID = "md5-crypt";
 

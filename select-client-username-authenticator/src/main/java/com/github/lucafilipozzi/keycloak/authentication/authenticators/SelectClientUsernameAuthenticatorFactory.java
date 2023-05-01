@@ -7,6 +7,8 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUI
 
 import java.util.Collections;
 import java.util.List;
+
+import com.google.auto.service.AutoService;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
@@ -15,6 +17,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
+@AutoService(AuthenticatorFactory.class)
 public class SelectClientUsernameAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "select-client-username-authenticator";
 

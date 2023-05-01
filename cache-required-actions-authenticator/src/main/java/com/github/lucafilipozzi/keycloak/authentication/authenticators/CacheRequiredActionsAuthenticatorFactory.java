@@ -8,6 +8,8 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUI
 import static org.keycloak.provider.ProviderConfigProperty.BOOLEAN_TYPE;
 
 import java.util.List;
+
+import com.google.auto.service.AutoService;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;
@@ -17,6 +19,7 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 
+@AutoService(AuthenticatorFactory.class)
 public class CacheRequiredActionsAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "cache-required-actions-authenticator";
 
