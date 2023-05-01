@@ -1,6 +1,6 @@
 // Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
 
-package com.github.lucafilipozzi.keycloak.authentication.authenticators.access;
+package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;

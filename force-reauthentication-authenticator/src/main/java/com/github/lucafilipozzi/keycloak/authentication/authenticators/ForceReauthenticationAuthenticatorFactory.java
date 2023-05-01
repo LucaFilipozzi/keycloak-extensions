@@ -1,8 +1,7 @@
 // Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
 
-package com.github.lucafilipozzi.keycloak.authentication.authenticators.browser;
+package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
-import static org.keycloak.models.AuthenticationExecutionModel.Requirement.ALTERNATIVE;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
@@ -19,12 +18,12 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
 @AutoService(AuthenticatorFactory.class)
-public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory {
-  public static final String PROVIDER_ID = "extended-cookie-authenticator";
+public class ForceReauthenticationAuthenticatorFactory implements AuthenticatorFactory {
+  public static final String PROVIDER_ID = "force-reauthentication";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, ALTERNATIVE, DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
 
-  private static final ExtendedCookieAuthenticator SINGLETON = new ExtendedCookieAuthenticator();
+  private static final ForceReauthenticationAuthenticator SINGLETON = new ForceReauthenticationAuthenticator();
 
   @Override
   public void close() {
@@ -43,12 +42,12 @@ public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory 
 
   @Override
   public String getDisplayType() {
-    return "Extended Cookie";
+    return "Force Reauthentication";
   }
 
   @Override
   public String getHelpText() {
-    return "extends Cookie to handle impersonators";
+    return "forces the user to reauthenticate";
   }
 
   @Override
