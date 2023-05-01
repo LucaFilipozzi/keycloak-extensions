@@ -34,8 +34,9 @@
   </properties>
 
   <modules>
-    <module>extended-cookie-authenticator</module>
     <module>cache-required-actions-authenticator</module>
+    <module>custom-password-policy-provider</module>
+    <module>extended-cookie-authenticator</module>
     <module>force-reauthentication-authenticator</module>
     <module>md5crypt-password-hash-provider</module>
     <module>select-client-username-authenticator</module>
