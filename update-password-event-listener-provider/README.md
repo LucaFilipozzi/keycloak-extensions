@@ -2,7 +2,7 @@
 
 ## description
 
-This even listnere provider listens for the **UPDATE_PASSWORD** event and syncs password from the *source user* (for
+This event listener provider listens for the **UPDATE_PASSWORD** event and syncs password from the *source user* (for
 whom the event was emitted) to zero or more *target users* specified in the ***password sync*** attribute ofthe *source
 user*.*
 
