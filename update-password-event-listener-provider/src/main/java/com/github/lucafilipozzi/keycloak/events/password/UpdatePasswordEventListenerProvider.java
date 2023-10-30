@@ -59,7 +59,7 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
     boolean setUpdatePasswordRequiredAction = sourceUser.getRequiredActionsStream()
       .anyMatch(x -> x.equals(RequiredAction.UPDATE_PASSWORD.toString()));
 
-    sourceUser.getAttributeStream("password sync").forEach(targetUsername -> {
+    sourceUser.getAttributeStream("password-sync").forEach(targetUsername -> {
       UserModel targetUser = session.users().getUserByUsername(realm, targetUsername);
       if (targetUser == null) {
         LOG.debugf("password not synced from %s to %s (not found)", sourceUser.getUsername(), targetUsername);
