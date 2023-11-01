@@ -56,9 +56,6 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
     targetCredential.setId(null);
     targetCredential.setUserLabel("password synced from " + sourceUser.getUsername());
 
-    boolean setUpdatePasswordRequiredAction = sourceUser.getRequiredActionsStream()
-      .anyMatch(x -> x.equals(RequiredAction.UPDATE_PASSWORD.toString()));
-
     sourceUser.getAttributeStream("password-sync").forEach(targetUsername -> {
       UserModel targetUser = session.users().getUserByUsername(realm, targetUsername);
       if (targetUser == null) {
@@ -68,13 +65,6 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
 
       // update credential
       passwordCredentialProvider.createCredential(realm, targetUser, targetCredential);
-
-      // update required action
-      if (setUpdatePasswordRequiredAction) {
-        targetUser.addRequiredAction(RequiredAction.UPDATE_PASSWORD);
-      } else{
-        targetUser.removeRequiredAction(RequiredAction.UPDATE_PASSWORD);
-      }
 
       LOG.debugf("password synced from %s to %s", sourceUser.getUsername(), targetUsername);
     });
