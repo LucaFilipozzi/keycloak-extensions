@@ -19,7 +19,7 @@ import java.util.List;
 
 @AutoService(AuthenticatorFactory.class)
 public class RecordLastLoginAuthenticatorFactory implements AuthenticatorFactory {
-  public static final String PROVIDER_ID = "cache-required-actions-authenticator";
+  public static final String PROVIDER_ID = "record-last-login-authenticator";
 
   private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
 
