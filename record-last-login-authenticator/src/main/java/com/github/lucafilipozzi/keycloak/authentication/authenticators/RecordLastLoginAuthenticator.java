@@ -22,7 +22,7 @@ public class RecordLastLoginAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
-    String pattern = "yyyy-MM-dd HH:mm:ss";
+    String pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     String name = "LAST LOGIN";
     String value = new SimpleDateFormat(pattern).format(Time.toDate(Time.currentTime()));
     UserModel user = context.getUser();
