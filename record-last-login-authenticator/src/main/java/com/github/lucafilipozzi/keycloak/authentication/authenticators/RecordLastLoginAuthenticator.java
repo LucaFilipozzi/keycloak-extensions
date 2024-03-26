@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 
 @JBossLog
 public class RecordLastLoginAuthenticator implements Authenticator {
+  private static final String NAME = "LAST LOGIN";
+  private static final String PATTERN = "yyyy-MM-dd" + "'T'" + "HH:mm:ss" + "'Z'";
 
   @Override
   public void action(AuthenticationFlowContext context) {
@@ -22,11 +24,7 @@ public class RecordLastLoginAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
-    String pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    String name = "LAST LOGIN";
-    String value = new SimpleDateFormat(pattern).format(Time.toDate(Time.currentTime()));
-    UserModel user = context.getUser();
-    user.setSingleAttribute(name, value);
+    context.getUser().setSingleAttribute(NAME, new SimpleDateFormat(PATTERN).format(Time.toDate(Time.currentTime())));
     context.success();
   }
 
