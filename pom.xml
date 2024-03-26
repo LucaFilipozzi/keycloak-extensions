@@ -39,6 +39,7 @@
     <module>custom-username-password-form</module>
     <module>extended-cookie-authenticator</module>
     <module>force-reauthentication-authenticator</module>
+    <module>login-event-listener-provider</module>
     <module>md5crypt-password-hash-provider</module>
     <module>record-last-login-authenticator</module>
     <module>select-client-username-authenticator</module>
