@@ -3,6 +3,9 @@
 # asdf
 .tool-versions
 
+#direnv
+.envrc
+
 # idea
 .idea/
 *.iml
