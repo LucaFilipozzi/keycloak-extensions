@@ -16,9 +16,8 @@ import org.keycloak.models.UserModel;
 
 @JBossLog
 public class LoginEventListenerProvider extends JBossLoggingEventListenerProvider implements EventListenerProvider {
-
   public final KeycloakSession session;
-  public static final String ATTRIBUTE_NAME = "LAST LOGIN";
+  public static final String ATTRIBUTE_NAME = "last-login";
 
   public LoginEventListenerProvider(KeycloakSession session, Logger logger) {
       super(session, logger, Logger.Level.WARN, Logger.Level.WARN);

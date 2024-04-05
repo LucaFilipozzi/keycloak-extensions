@@ -12,16 +12,13 @@ import org.keycloak.common.util.Time;
 import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.CredentialProvider;
 import org.keycloak.credential.PasswordCredentialProvider;
+import org.keycloak.credential.PasswordCredentialProviderFactory;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
-import org.keycloak.models.RealmModel;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.timer.TimerProvider;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @JBossLog
 @AutoService(EventListenerProviderFactory.class)
@@ -29,16 +26,11 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
   public static final String PROVIDER_ID = "login-event-listener";
   private static final long EXPIRED_PASSWORD_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
   private static final long INACTIVE_ACCOUNT_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-  private static final long INTERVAL = 24 * 60 * 60 * 1000L; // 1 day in milliseconds
-  private static final List<String> realmIdList = new ArrayList<>();
-  private static final Logger logger = Logger.getLogger("org.keycloak.events");
+  private static final long INTERVAL = 15 * 1000L; // 15 seconds in milliseconds TODO
 
   @Override
   public EventListenerProvider create(KeycloakSession session) {
-    String realmId = session.getContext().getRealm().getId();
-    LOG.warnf("adding %s to realmIdList", realmId);
-    realmIdList.add(realmId);
-    return new LoginEventListenerProvider(session, logger);
+    return new LoginEventListenerProvider(session, Logger.getLogger("org.keycloak.events"));
   }
 
   @Override
@@ -48,7 +40,6 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
   @Override
   public void postInit(KeycloakSessionFactory factory) {
-    // schedule task after last ProviderEvent (PostMigrationEvent) has been triggered
     factory.register(
       event -> {
         if (event instanceof PostMigrationEvent) {
@@ -71,25 +62,27 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
   }
 
   private void disableUsers(KeycloakSession session) {
-    PasswordCredentialProvider passwordCredentialProvider = (PasswordCredentialProvider) session.getProvider(CredentialProvider.class);
+    PasswordCredentialProvider passwordCredentialProvider = (PasswordCredentialProvider) session
+      .getProvider(CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
     long currentTimeMillis = Time.currentTimeMillis();
-    realmIdList.forEach(
-      realmId -> {
-        RealmModel realm = session.realms().getRealm(realmId);
-        session.users().getUsersStream(realm).forEach(
-          user -> {
-            CredentialModel password = passwordCredentialProvider.getPassword(realm, user);
-            if (password != null && ((currentTimeMillis - password.getCreatedDate()) > EXPIRED_PASSWORD_GRACE_PERIOD)) {
-              LOG.warnf("user '%s' disabled because expired password", user.getUsername());
-              // TODO user.setEnabled(false)
+    session.realms().getRealmsStream().forEach(
+      realm -> {
+        if (realm.getEventsListenersStream().anyMatch(n -> n.equals(PROVIDER_ID))) {
+          session.users().getUsersStream(realm).forEach(
+            user -> {
+              CredentialModel password = passwordCredentialProvider.getPassword(realm, user);
+              if (password != null && ((currentTimeMillis - password.getCreatedDate()) > EXPIRED_PASSWORD_GRACE_PERIOD) && user.isEnabled()) {
+                LOG.warnf("disabled realm='%s' user='%s' userId='%s' because expired password", realm.getName(), user.getUsername(), user.getId());
+                user.setEnabled(false);
+              }
+              String lastLogin = user.getFirstAttribute(ATTRIBUTE_NAME);
+              if (NumberUtils.isNumber(lastLogin) && ((currentTimeMillis - NumberUtils.toLong(lastLogin)) > INACTIVE_ACCOUNT_GRACE_PERIOD) && user.isEnabled()) {
+                LOG.warnf("disabled realm='%s' user='%s' userId='%s' because inactive account", realm.getName(), user.getUsername(), user.getId());
+                user.setEnabled(false);
+              }
             }
-            String lastLoginMillis = user.getFirstAttribute(ATTRIBUTE_NAME);
-            if (NumberUtils.isNumber(lastLoginMillis) && ((currentTimeMillis - Long.parseLong(lastLoginMillis)) > INACTIVE_ACCOUNT_GRACE_PERIOD)) {
-              LOG.warnf("user '%s' disabled because inactive account", user.getUsername());
-              // TODO user.setEnabled(false)
-            }
-         }
-        );
+          );
+        }
       }
     );
   }
