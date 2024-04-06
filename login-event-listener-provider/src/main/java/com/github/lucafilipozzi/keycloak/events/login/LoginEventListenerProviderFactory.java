@@ -28,9 +28,14 @@ import java.util.function.Predicate;
 @AutoService(EventListenerProviderFactory.class)
 public class LoginEventListenerProviderFactory implements EventListenerProviderFactory {
   public static final String PROVIDER_ID = "login-event-listener";
+
   private static final long EXPIRED_PASSWORD_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
   private static final long INACTIVE_ACCOUNT_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-  private static final long INTERVAL = 30 * 1000L; // 30 seconds in milliseconds TODO
+  private static final long DISABLE_USERS_TASK_INTERVAL   =      24 * 60 * 60 * 1000L; //  1 day  in milliseconds
+
+  private long expiredPasswordGracePeriod;
+  private long inactiveAccountGracePeriod;
+  private long disableUsersTaskInterval;
 
   @Override
   public EventListenerProvider create(KeycloakSession session) {
@@ -39,7 +44,12 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
   @Override
   public void init(Config.Scope config) {
-    // intentionally empty
+    expiredPasswordGracePeriod =
+        config.getLong("expiredPasswordGradePeriod", EXPIRED_PASSWORD_GRACE_PERIOD);
+    inactiveAccountGracePeriod =
+        config.getLong("inactiveAccountGracePeriod", INACTIVE_ACCOUNT_GRACE_PERIOD);
+    disableUsersTaskInterval =
+        config.getLong("disableUsersTaskInterval", DISABLE_USERS_TASK_INTERVAL);
   }
 
   @Override
@@ -49,7 +59,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
           if (event instanceof PostMigrationEvent) {
             KeycloakSession session = factory.create();
             TimerProvider timer = session.getProvider(TimerProvider.class);
-            timer.scheduleTask(this::disableUsers, INTERVAL, "disable-users-task");
+            timer.scheduleTask(this::disableUsers, disableUsersTaskInterval, "disable-users-task");
           }
         });
   }
@@ -86,7 +96,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
                         passwordCredentialProvider.getPassword(realm, user);
                     if (credential != null
                         && ((currentTimeMillis - credential.getCreatedDate())
-                            > EXPIRED_PASSWORD_GRACE_PERIOD)) {
+                            > expiredPasswordGracePeriod)) {
                       LOG.warnf(
                           "disabled realm='%s' user='%s' userId='%s' for expired password",
                           realm.getName(), user.getUsername(), user.getId());
@@ -100,7 +110,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
                     String lastLogin = user.getFirstAttribute(ATTRIBUTE_NAME);
                     if (NumberUtils.isNumber(lastLogin)
                         && ((currentTimeMillis - NumberUtils.toLong(lastLogin))
-                            > INACTIVE_ACCOUNT_GRACE_PERIOD)) {
+                            > inactiveAccountGracePeriod)) {
                       LOG.warnf(
                           "disabled realm='%s' user='%s' userId='%s' for inactive account",
                           realm.getName(), user.getUsername(), user.getId());
