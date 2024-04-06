@@ -17,8 +17,12 @@ import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.timer.TimerProvider;
+
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 @JBossLog
 @AutoService(EventListenerProviderFactory.class)
@@ -26,7 +30,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
   public static final String PROVIDER_ID = "login-event-listener";
   private static final long EXPIRED_PASSWORD_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
   private static final long INACTIVE_ACCOUNT_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-  private static final long INTERVAL = 15 * 1000L; // 15 seconds in milliseconds TODO
+  private static final long INTERVAL = 30 * 1000L; // 30 seconds in milliseconds TODO
 
   @Override
   public EventListenerProvider create(KeycloakSession session) {
@@ -41,14 +45,13 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
   @Override
   public void postInit(KeycloakSessionFactory factory) {
     factory.register(
-      event -> {
-        if (event instanceof PostMigrationEvent) {
-          KeycloakSession session = factory.create();
-          TimerProvider timer = session.getProvider(TimerProvider.class);
-          timer.scheduleTask(this::disableUsers, INTERVAL, "disable-users-task");
-        }
-      }
-    );
+        event -> {
+          if (event instanceof PostMigrationEvent) {
+            KeycloakSession session = factory.create();
+            TimerProvider timer = session.getProvider(TimerProvider.class);
+            timer.scheduleTask(this::disableUsers, INTERVAL, "disable-users-task");
+          }
+        });
   }
 
   @Override
@@ -62,28 +65,66 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
   }
 
   private void disableUsers(KeycloakSession session) {
-    PasswordCredentialProvider passwordCredentialProvider = (PasswordCredentialProvider) session
-      .getProvider(CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
+    PasswordCredentialProvider passwordCredentialProvider =
+        (PasswordCredentialProvider)
+            session.getProvider(
+                CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
     long currentTimeMillis = Time.currentTimeMillis();
-    session.realms().getRealmsStream().forEach(
-      realm -> {
-        if (realm.getEventsListenersStream().anyMatch(n -> n.equals(PROVIDER_ID))) {
-          session.users().getUsersStream(realm).forEach(
-            user -> {
-              CredentialModel password = passwordCredentialProvider.getPassword(realm, user);
-              if (password != null && ((currentTimeMillis - password.getCreatedDate()) > EXPIRED_PASSWORD_GRACE_PERIOD) && user.isEnabled()) {
-                LOG.warnf("disabled realm='%s' user='%s' userId='%s' because expired password", realm.getName(), user.getUsername(), user.getId());
-                user.setEnabled(false);
-              }
-              String lastLogin = user.getFirstAttribute(ATTRIBUTE_NAME);
-              if (NumberUtils.isNumber(lastLogin) && ((currentTimeMillis - NumberUtils.toLong(lastLogin)) > INACTIVE_ACCOUNT_GRACE_PERIOD) && user.isEnabled()) {
-                LOG.warnf("disabled realm='%s' user='%s' userId='%s' because inactive account", realm.getName(), user.getUsername(), user.getId());
-                user.setEnabled(false);
-              }
-            }
-          );
-        }
-      }
-    );
+    session
+        .realms()
+        .getRealmsStream()
+        .filter(
+            realm ->
+                realm
+                    .getEventsListenersStream()
+                    .anyMatch(eventListenerName -> eventListenerName.equals(PROVIDER_ID)))
+        .forEach(
+            realm -> {
+              Predicate<UserModel> expiredPassword =
+                  user -> {
+                    CredentialModel credential =
+                        passwordCredentialProvider.getPassword(realm, user);
+                    if (credential != null
+                        && ((currentTimeMillis - credential.getCreatedDate())
+                            > EXPIRED_PASSWORD_GRACE_PERIOD)) {
+                      LOG.warnf(
+                          "disabled realm='%s' user='%s' userId='%s' for expired password",
+                          realm.getName(), user.getUsername(), user.getId());
+                      return true;
+                    }
+                    return false;
+                  };
+
+              Predicate<UserModel> inactiveAccount =
+                  user -> {
+                    String lastLogin = user.getFirstAttribute(ATTRIBUTE_NAME);
+                    if (NumberUtils.isNumber(lastLogin)
+                        && ((currentTimeMillis - NumberUtils.toLong(lastLogin))
+                            > INACTIVE_ACCOUNT_GRACE_PERIOD)) {
+                      LOG.warnf(
+                          "disabled realm='%s' user='%s' userId='%s' for inactive account",
+                          realm.getName(), user.getUsername(), user.getId());
+                      return true;
+                    }
+                    return false;
+                  };
+
+              Consumer<UserModel> disableUser =
+                  user -> {
+                    user.setEnabled(false);
+                    session.userCache().evict(realm, user);
+                  };
+
+              LOG.debugf(
+                  "checking realm='%s' for expired passwords or inactive accounts",
+                  realm.getName());
+
+              session
+                  .userLocalStorage()
+                  .getUsersStream(realm)
+                  .filter(UserModel::isEnabled)
+                  .filter(expiredPassword.or(inactiveAccount))
+                  .forEach(disableUser);
+            });
   }
 }
