@@ -12,7 +12,7 @@
     <version>${revision}</version>
   </parent>
 
-  <artifactId>md5-password-hash-provider</artifactId>
+  <artifactId>md5crypt-password-hash-provider</artifactId>
   <packaging>jar</packaging>
 
   <licenses>
