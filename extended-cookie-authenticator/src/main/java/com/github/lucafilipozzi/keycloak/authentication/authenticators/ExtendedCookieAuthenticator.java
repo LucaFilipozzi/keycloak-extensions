@@ -71,7 +71,7 @@ public class ExtendedCookieAuthenticator extends CookieAuthenticator implements 
     if (!roleIntersection.isEmpty()) {
       LOG.debug("access granted to impersonator");
       userSession.setNote(IMPERSONATOR_ROLES, roleIntersection.stream()
-        .map(RoleModel::getName).collect(Collectors.joining(",")));
+          .map(RoleModel::getName).collect(Collectors.joining(",")));
       super.authenticate(context);
       return;
     }

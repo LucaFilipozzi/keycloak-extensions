@@ -7,8 +7,9 @@ import org.keycloak.services.messages.Messages;
 
 public class CustomUsernamePasswordForm extends UsernamePasswordForm {
 
-    @Override
-    protected String disabledByBruteForceError() {
-        return Messages.ACCOUNT_DISABLED;
-    }
+  @Override
+  protected String disabledByBruteForceError() {
+    return Messages.ACCOUNT_DISABLED;
+  }
 }
+

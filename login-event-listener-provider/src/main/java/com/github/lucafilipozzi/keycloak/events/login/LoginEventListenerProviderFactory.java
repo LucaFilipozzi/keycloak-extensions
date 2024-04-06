@@ -3,7 +3,10 @@
 package com.github.lucafilipozzi.keycloak.events.login;
 
 import static com.github.lucafilipozzi.keycloak.events.login.LoginEventListenerProvider.ATTRIBUTE_NAME;
+
 import com.google.auto.service.AutoService;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import lombok.extern.jbosslog.JBossLog;
 import org.apache.commons.lang.math.NumberUtils;
 import org.jboss.logging.Logger;
@@ -20,9 +23,6 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.timer.TimerProvider;
-
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 @JBossLog
 @AutoService(EventListenerProviderFactory.class)

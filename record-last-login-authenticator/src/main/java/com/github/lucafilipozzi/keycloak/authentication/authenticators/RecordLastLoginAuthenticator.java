@@ -2,6 +2,7 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
+import java.text.SimpleDateFormat;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
@@ -9,8 +10,6 @@ import org.keycloak.common.util.Time;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-
-import java.text.SimpleDateFormat;
 
 @JBossLog
 public class RecordLastLoginAuthenticator implements Authenticator {

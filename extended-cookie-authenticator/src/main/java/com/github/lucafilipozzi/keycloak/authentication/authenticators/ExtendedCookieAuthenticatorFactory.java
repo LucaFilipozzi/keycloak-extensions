@@ -6,10 +6,9 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.ALTER
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
+import com.google.auto.service.AutoService;
 import java.util.Collections;
 import java.util.List;
-
-import com.google.auto.service.AutoService;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;

@@ -37,9 +37,9 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
 
   @Override
   public void onEvent(AdminEvent event, boolean includeRepresentation) {
-    if (event.getResourceType() == ResourceType.USER &&
-        event.getOperationType() == OperationType.ACTION &&
-        event.getResourcePath().endsWith("/reset-password")) {
+    if (event.getResourceType() == ResourceType.USER
+        && event.getOperationType() == OperationType.ACTION
+        && event.getResourcePath().endsWith("/reset-password")) {
       RealmModel realm = session.realms().getRealm(event.getRealmId());
       UserModel user = session.users().getUserById(realm, event.getResourcePath().split("/")[1]);
       onEvent(realm, user);
@@ -48,7 +48,7 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
 
   private void onEvent(RealmModel realm, UserModel sourceUser) {
     PasswordCredentialProvider passwordCredentialProvider = (PasswordCredentialProvider) session
-      .getProvider(CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
+        .getProvider(CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
 
     CredentialModel sourceCredential = passwordCredentialProvider.getPassword(realm, sourceUser);
 
