@@ -1,4 +1,4 @@
-// Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
@@ -7,9 +7,8 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISAB
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 import static org.keycloak.provider.ProviderConfigProperty.BOOLEAN_TYPE;
 
-import java.util.List;
-
 import com.google.auto.service.AutoService;
+import java.util.List;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
 import org.keycloak.authentication.AuthenticatorFactory;

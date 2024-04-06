@@ -1,7 +1,8 @@
-// Copyright 2023 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
+import java.util.stream.Collectors;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
@@ -13,9 +14,7 @@ import org.keycloak.models.UserModel;
 @JBossLog
 public class CacheRequiredActionsAuthenticator implements Authenticator {
   public static final String RESTORE_PROPERTY_ID = "restore";
-  private static final String PREFIX = "DEFER_";
-
-  private static final int LENGTH = PREFIX.length();
+  private static final String ATTRIBUTE_NAME = "required-actions";
 
   @Override
   public void action(AuthenticationFlowContext context) {
@@ -24,27 +23,18 @@ public class CacheRequiredActionsAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
-    boolean restore = false;
     AuthenticatorConfigModel authenticatorConfig = context.getAuthenticatorConfig();
     if (authenticatorConfig != null) {
-      restore = Boolean.parseBoolean(authenticatorConfig.getConfig()
-          .getOrDefault(RESTORE_PROPERTY_ID, "false"));
+      UserModel user = context.getUser();
+      if (Boolean.parseBoolean(
+          authenticatorConfig.getConfig().getOrDefault(RESTORE_PROPERTY_ID, "false"))) {
+        user.getAttributeStream(ATTRIBUTE_NAME).forEach(user::addRequiredAction);
+        user.removeAttribute(ATTRIBUTE_NAME);
+      } else {
+        user.setAttribute(ATTRIBUTE_NAME, user.getRequiredActionsStream().collect(Collectors.toList()));
+        user.getRequiredActionsStream().forEach(user::removeRequiredAction);
+      }
     }
-
-    UserModel user = context.getUser();
-    if (restore) {
-      user.getAttributes().keySet().stream()
-          .filter(attribute -> attribute.startsWith(PREFIX))
-          .forEach(attribute -> {
-            user.removeAttribute(attribute);
-            user.addRequiredAction(attribute.substring(LENGTH)); } );
-    } else { // cache
-      user.getRequiredActionsStream()
-          .forEach(requiredAction -> {
-            user.removeRequiredAction(requiredAction);
-            user.setSingleAttribute(PREFIX + requiredAction, "N/A"); } );
-    }
-
     context.success();
   }
 
