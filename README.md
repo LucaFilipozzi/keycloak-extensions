@@ -7,6 +7,6 @@ Please see the README.md files contained within each module for their
 respective descriptions.
 
 ---
-Copyright 2023 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
+© 2024 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md

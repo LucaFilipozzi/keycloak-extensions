@@ -74,6 +74,6 @@ password entered by a user against the stored md5crypt hash.
 ```
 
 ---
-Copyright 2023 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
+© 2024 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
