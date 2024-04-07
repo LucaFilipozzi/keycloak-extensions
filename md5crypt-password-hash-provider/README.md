@@ -7,6 +7,11 @@ helps with migrating accounts from a unix system using old hashes into
 Keycloak. When users reset their passwords in Keycloak, the default password
 hash algorithm will be used used (pbkdf2-sha256) unless altered by an admin.
 
+## usage
+
+1. copy the JAR to the deployment directory
+2. load users per _user migration_ section below
+
 ## user migration
 
 Prepare a JSON file similar to that below containing the users to import into
@@ -74,6 +79,8 @@ password entered by a user against the stored md5crypt hash.
 ```
 
 ---
+
 © 2024 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
+

@@ -8,17 +8,24 @@ direct grants, it is not possible for the user to process any required actions
 will fail.
 
 By adding this authenticator in a pair-wise way (to the _Direct Grant_ flow and
-also to the _Browser_ flow), it is possible to cache (in the Direct Grant flow)
-any required actions so that the attempt at obtaining a token via direct grant
-succeeds and to restore (in the Browser flow) the cached required actions.
+also to the _Browser_ flow), it is possible
+
+- to cache (in the Direct Grant flow) any required actions so that the attempt
+  at obtaining a token via direct grant succeeds, and
+
+- to restore (in the Browser flow) the cached required actions so that the user
+  is forced to process them.
 
 ## usage
 
-Add this authenticator to
-* _Direct Grant_ flow with _restore_ set to false (default)
-* _Browser_ flow, with _restore_ set to true
+1. copy the JAR to the deployment directory
+2. add this authenticator to
+   - _Direct Grant_ flow with _restore_ set to false (default)
+   - _Browser_ flow, with _restore_ set to true
 
 ---
+
 © 2024 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
+

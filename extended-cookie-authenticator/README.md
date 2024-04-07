@@ -16,21 +16,24 @@ If not, then impersonation is denied.
 
 ## usage
 
-* create a copy of the delivered browser flow and replace _Cookie_ with _Extended Cookie_
-* configure the client to use that flow rather than the delivered flow
-* create client role(s) that are directly or indirectly, however deeply, composited
-  with __realm-management.impersonation__; for example:
-  * direct: client role __impersonator__ composited with
-    * __realm-management.impersonation__
-    * __realm-management.view-users__
-  * indirect: client role __impersonator__ composited with
-    * realm role __impersonator__ composited with
-      * __realm-management.impersonation__
-      * __realm-management.view-users__
-* assign the client role(s) to users who should be granted the ability to impersonate a
-  user into the client
+1. copy the JAR to the deployment directory
+2. create a copy of the delivered browser flow and replace _Cookie_ with _Extended Cookie_
+3. configure the client to use that flow rather than the delivered flow
+4. create client role(s) that are directly or indirectly, however deeply, composited
+   with __realm-management.impersonation__; for example:
+   - direct: client role __impersonator__ composited with
+     - __realm-management.impersonation__
+     - __realm-management.view-users__
+   - indirect: client role __impersonator__ composited with
+     - realm role __impersonator__ composited with
+       - __realm-management.impersonation__
+       - __realm-management.view-users__
+5. assign the client role(s) to users who should be granted the ability to impersonate a
+   user into the client
 
 ---
+
 © 2024 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
+

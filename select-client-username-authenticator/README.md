@@ -11,9 +11,11 @@ Release the selected client username using a _User Session Note_ mapper.
 
 ## usage
 
-This authenticator is not ready for use.
+this authenticator is not ready for use
 
 ---
+
 © 2024 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
+

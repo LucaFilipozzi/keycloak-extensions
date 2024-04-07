@@ -1,5 +1,4 @@
 // © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
-
 package com.github.lucafilipozzi.keycloak.credential.hash;
 
 import com.google.auto.service.AutoService;

@@ -1,5 +1,4 @@
 // © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
-
 package com.github.lucafilipozzi.keycloak.events.login;
 
 import static com.github.lucafilipozzi.keycloak.events.login.LoginEventListenerProvider.ATTRIBUTE_NAME;

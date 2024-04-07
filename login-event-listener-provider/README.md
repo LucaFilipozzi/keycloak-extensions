@@ -11,10 +11,11 @@ This event listener provider performs two functions:
    - expired passwords (60 days beyond reset policy)
    - inactive accounts (60 days since last log in)
 
-## deployment
+## usage
 
 1. copy the JAR to the deployment directory
 2. modify standalone.xml
+
    ```xml
    <subsystem xmlns="urn:jboss:domain:keycloak-server:1.1">
        <spi name="eventsListener">
@@ -31,17 +32,19 @@ This event listener provider performs two functions:
    ```
 3. add a `last-login` attribute to the realm's declarative user profile with
    - permissions
-      - user can view set false
-      - admin can view set true
-      - user can edit set false
-      - admin can edit set false
+     - user can view set false
+     - admin can view set true
+     - user can edit set false
+     - admin can edit set false
    - validations
-      - pattern validator
-         - pattern:`^[0-9]+$`
-         - message: `invalid timestamp (in milliseconds)`
+     - pattern validator
+       - pattern:`^[0-9]+$`
+       - message: `invalid timestamp (in milliseconds)`
 4. add `login-event-listener` to the realm's event listeners
 
 ---
+
 © 2024 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
+

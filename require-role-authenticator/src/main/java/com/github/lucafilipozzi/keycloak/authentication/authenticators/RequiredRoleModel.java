@@ -1,5 +1,4 @@
 // © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
-
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import lombok.NonNull;
