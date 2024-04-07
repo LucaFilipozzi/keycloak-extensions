@@ -15,17 +15,17 @@ public class CustomPasswordPolicyProviderFactory implements PasswordPolicyProvid
 
   @Override
   public String getDisplayName() {
-    return null; //TODO
+    return null; // TODO
   }
 
   @Override
   public String getConfigType() {
-    return null; //TODO
+    return null; // TODO
   }
 
   @Override
   public String getDefaultConfigValue() {
-    return null; //TODO
+    return null; // TODO
   }
 
   @Override

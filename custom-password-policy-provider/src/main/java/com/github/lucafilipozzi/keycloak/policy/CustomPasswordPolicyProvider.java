@@ -17,8 +17,11 @@ public class CustomPasswordPolicyProvider implements PasswordPolicyProvider {
 
   @Override
   public PolicyError validate(RealmModel realm, UserModel user, String password) {
-    UserModel authenticatedUser = session.getContext().getAuthenticationSession().getAuthenticatedUser();
-    LOG.infof("realm=%s user=%s authenticatedUser=%s", realm.getName(), user.getUsername(), authenticatedUser.getUsername());
+    UserModel authenticatedUser =
+        session.getContext().getAuthenticationSession().getAuthenticatedUser();
+    LOG.infof(
+        "realm=%s user=%s authenticatedUser=%s",
+        realm.getName(), user.getUsername(), authenticatedUser.getUsername());
     return null; // equivalent to 'no error'
   }
 

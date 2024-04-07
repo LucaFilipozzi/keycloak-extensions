@@ -31,10 +31,10 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
   private static final long EXPIRED_PASSWORD_GRACE_PERIOD =
       60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-                                 //
+  //
   private static final long INACTIVE_ACCOUNT_GRACE_PERIOD =
       60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-                                 //
+  //
   private static final long DISABLE_USERS_TASK_INTERVAL =
       24 * 60 * 60 * 1000L; //  1 day  in milliseconds
 

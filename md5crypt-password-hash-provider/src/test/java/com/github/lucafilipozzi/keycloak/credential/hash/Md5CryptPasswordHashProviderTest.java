@@ -12,9 +12,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.Md5Crypt;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import org.junit.runner.RunWith;
 import org.keycloak.models.credential.PasswordCredentialModel;
 
 @RequiredArgsConstructor
