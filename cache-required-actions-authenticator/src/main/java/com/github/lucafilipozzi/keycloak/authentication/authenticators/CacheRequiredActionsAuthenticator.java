@@ -14,6 +14,7 @@ import org.keycloak.models.UserModel;
 @JBossLog
 public class CacheRequiredActionsAuthenticator implements Authenticator {
   public static final String RESTORE_PROPERTY_ID = "restore";
+
   private static final String ATTRIBUTE_NAME = "required-actions";
 
   @Override
@@ -31,7 +32,8 @@ public class CacheRequiredActionsAuthenticator implements Authenticator {
         user.getAttributeStream(ATTRIBUTE_NAME).forEach(user::addRequiredAction);
         user.removeAttribute(ATTRIBUTE_NAME);
       } else {
-        user.setAttribute(ATTRIBUTE_NAME, user.getRequiredActionsStream().collect(Collectors.toList()));
+        user.setAttribute(
+            ATTRIBUTE_NAME, user.getRequiredActionsStream().collect(Collectors.toList()));
         user.getRequiredActionsStream().forEach(user::removeRequiredAction);
       }
     }

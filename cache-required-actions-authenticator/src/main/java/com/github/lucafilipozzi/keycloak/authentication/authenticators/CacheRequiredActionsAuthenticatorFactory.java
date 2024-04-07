@@ -22,23 +22,24 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 public class CacheRequiredActionsAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "cache-required-actions-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {REQUIRED, DISABLED};
 
-  private static final CacheRequiredActionsAuthenticator SINGLETON = new CacheRequiredActionsAuthenticator();
+  private static final CacheRequiredActionsAuthenticator SINGLETON =
+      new CacheRequiredActionsAuthenticator();
 
   private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
 
   static {
-    CONFIG_PROPERTIES = ProviderConfigurationBuilder
-        .create()
-        .property()
-        .name(RESTORE_PROPERTY_ID)
-        .type(BOOLEAN_TYPE)
-        .defaultValue("false")
-        .label("restore")
-        .helpText("whether to cache (default; false) or restore (true)")
-        .add()
-        .build();
+    CONFIG_PROPERTIES =
+        ProviderConfigurationBuilder.create()
+            .property()
+            .name(RESTORE_PROPERTY_ID)
+            .type(BOOLEAN_TYPE)
+            .defaultValue("false")
+            .label("restore")
+            .helpText("whether to cache (default; false) or restore (true)")
+            .add()
+            .build();
   }
 
   @Override

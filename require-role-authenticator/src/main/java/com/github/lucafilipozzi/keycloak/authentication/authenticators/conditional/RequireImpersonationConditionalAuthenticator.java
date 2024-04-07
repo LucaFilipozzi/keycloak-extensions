@@ -28,9 +28,16 @@ public class RequireImpersonationConditionalAuthenticator implements Conditional
 
   @Override
   public boolean matchCondition(AuthenticationFlowContext context) {
-    boolean negateResult = Boolean.parseBoolean(context.getAuthenticatorConfig().getConfig().get(NEGATE_RESULT));
-    AuthResult authResult = AuthenticationManager.authenticateIdentityCookie(context.getSession(), context.getRealm(), true);
-    if (authResult != null && authResult.getSession().getNotes().containsKey(ImpersonationSessionNote.IMPERSONATOR_ID.toString())) {
+    boolean negateResult =
+        Boolean.parseBoolean(context.getAuthenticatorConfig().getConfig().get(NEGATE_RESULT));
+    AuthResult authResult =
+        AuthenticationManager.authenticateIdentityCookie(
+            context.getSession(), context.getRealm(), true);
+    if (authResult != null
+        && authResult
+            .getSession()
+            .getNotes()
+            .containsKey(ImpersonationSessionNote.IMPERSONATOR_ID.toString())) {
       return !negateResult;
     }
     return negateResult;

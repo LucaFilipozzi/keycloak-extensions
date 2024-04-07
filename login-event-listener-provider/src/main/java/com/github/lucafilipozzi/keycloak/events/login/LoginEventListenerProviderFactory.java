@@ -29,12 +29,19 @@ import org.keycloak.timer.TimerProvider;
 public class LoginEventListenerProviderFactory implements EventListenerProviderFactory {
   public static final String PROVIDER_ID = "login-event-listener";
 
-  private static final long EXPIRED_PASSWORD_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-  private static final long INACTIVE_ACCOUNT_GRACE_PERIOD = 60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-  private static final long DISABLE_USERS_TASK_INTERVAL   =      24 * 60 * 60 * 1000L; //  1 day  in milliseconds
+  private static final long EXPIRED_PASSWORD_GRACE_PERIOD =
+      60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
+                                 //
+  private static final long INACTIVE_ACCOUNT_GRACE_PERIOD =
+      60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
+                                 //
+  private static final long DISABLE_USERS_TASK_INTERVAL =
+      24 * 60 * 60 * 1000L; //  1 day  in milliseconds
 
   private long expiredPasswordGracePeriod;
+
   private long inactiveAccountGracePeriod;
+
   private long disableUsersTaskInterval;
 
   @Override

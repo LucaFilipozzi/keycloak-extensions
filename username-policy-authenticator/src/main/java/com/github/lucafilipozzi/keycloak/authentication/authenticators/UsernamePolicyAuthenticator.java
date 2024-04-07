@@ -30,18 +30,22 @@ public class UsernamePolicyAuthenticator implements Authenticator {
   public void authenticate(AuthenticationFlowContext context) {
     AuthenticatorConfigModel authenticatorConfig = context.getAuthenticatorConfig();
     if (authenticatorConfig == null) {
-      Response response = context.form().setError("Server Misconfiguration").createErrorPage(INTERNAL_SERVER_ERROR);
+      Response response =
+          context.form().setError("Server Misconfiguration").createErrorPage(INTERNAL_SERVER_ERROR);
       context.failureChallenge(INTERNAL_ERROR, response);
       return;
     }
     String pattern = authenticatorConfig.getConfig().get("pattern");
 
     AuthenticationSessionModel authSession = context.getAuthenticationSession();
-    SerializedBrokeredIdentityContext serializedCtx = SerializedBrokeredIdentityContext.readFromAuthenticationSession(authSession, BROKERED_CONTEXT_NOTE);
+    SerializedBrokeredIdentityContext serializedCtx =
+        SerializedBrokeredIdentityContext.readFromAuthenticationSession(
+            authSession, BROKERED_CONTEXT_NOTE);
     String username = serializedCtx.getUsername();
 
     if (!username.matches(pattern)) {
-      Response response = context.form().setError("Invalid Username").createErrorPage(NOT_ACCEPTABLE);
+      Response response =
+          context.form().setError("Invalid Username").createErrorPage(NOT_ACCEPTABLE);
       context.failureChallenge(INVALID_USER, response);
       return;
     }

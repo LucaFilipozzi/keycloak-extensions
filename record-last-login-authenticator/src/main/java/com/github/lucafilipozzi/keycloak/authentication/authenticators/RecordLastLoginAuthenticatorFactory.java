@@ -20,7 +20,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class RecordLastLoginAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "record-last-login-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {REQUIRED, DISABLED};
 
   private static final RecordLastLoginAuthenticator SINGLETON = new RecordLastLoginAuthenticator();
 

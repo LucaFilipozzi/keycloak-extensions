@@ -10,11 +10,9 @@ import org.keycloak.models.utils.KeycloakModelUtils;
 
 @RequiredArgsConstructor
 public class RequiredRoleModel implements RoleModel {
-  @NonNull
-  private RequireRoleContext context;
+  @NonNull private RequireRoleContext context;
 
-  @Delegate @NonNull
-  private RoleModel role;
+  @Delegate @NonNull private RoleModel role;
 
   Boolean getApplyToImpersonator() {
     return context.getApplyToImpersonator();
@@ -34,9 +32,9 @@ public class RequiredRoleModel implements RoleModel {
     }
 
     if (requiredRoleName.startsWith(RequireRoleConstants.CLIENT_ID_PLACEHOLDER)) {
-      requiredRoleName = requiredRoleName.replace(
-          RequireRoleConstants.CLIENT_ID_PLACEHOLDER,
-          context.getClient().getClientId());
+      requiredRoleName =
+          requiredRoleName.replace(
+              RequireRoleConstants.CLIENT_ID_PLACEHOLDER, context.getClient().getClientId());
     }
 
     RoleModel role = KeycloakModelUtils.getRoleFromString(context.getRealm(), requiredRoleName);

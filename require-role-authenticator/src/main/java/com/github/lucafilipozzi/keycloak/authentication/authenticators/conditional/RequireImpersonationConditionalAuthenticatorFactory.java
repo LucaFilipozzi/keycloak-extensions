@@ -10,25 +10,31 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 import org.keycloak.provider.ProviderConfigurationBuilder;
 
-public class RequireImpersonationConditionalAuthenticatorFactory implements ConditionalAuthenticatorFactory {
+@AutoService(AuthenticatorFactory.class)
+public class RequireImpersonationConditionalAuthenticatorFactory
+    implements ConditionalAuthenticatorFactory {
   public static final String PROVIDER_ID = "conditional-require-impersonation";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {
+    Requirement.REQUIRED, Requirement.DISABLED
+  };
 
-  private static final RequireImpersonationConditionalAuthenticator SINGLETON = new RequireImpersonationConditionalAuthenticator();
+  private static final RequireImpersonationConditionalAuthenticator SINGLETON =
+      new RequireImpersonationConditionalAuthenticator();
 
   private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
 
   static {
-    CONFIG_PROPERTIES = ProviderConfigurationBuilder.create()
-      .property()
-        .name(RequireImpersonationConditionalAuthenticator.NEGATE_RESULT)
-        .type(ProviderConfigProperty.BOOLEAN_TYPE)
-        .label("negate result")
-        .helpText("Specify whether to negate the result.")
-        .defaultValue(false)
-      .add()
-      .build();
+    CONFIG_PROPERTIES =
+        ProviderConfigurationBuilder.create()
+            .property()
+            .name(RequireImpersonationConditionalAuthenticator.NEGATE_RESULT)
+            .type(ProviderConfigProperty.BOOLEAN_TYPE)
+            .label("negate result")
+            .helpText("Specify whether to negate the result.")
+            .defaultValue(false)
+            .add()
+            .build();
   }
 
   @Override

@@ -21,7 +21,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "extended-cookie-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, ALTERNATIVE, DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {REQUIRED, ALTERNATIVE, DISABLED};
 
   private static final ExtendedCookieAuthenticator SINGLETON = new ExtendedCookieAuthenticator();
 

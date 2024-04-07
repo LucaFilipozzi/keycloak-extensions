@@ -12,10 +12,13 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
+@AutoService(AuthenticatorFactory.class)
 public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "require-role";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.ALTERNATIVE, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {
+    Requirement.REQUIRED, Requirement.ALTERNATIVE, Requirement.DISABLED
+  };
 
   private static final RequireRoleAuthenticator SINGLETON = new RequireRoleAuthenticator();
 

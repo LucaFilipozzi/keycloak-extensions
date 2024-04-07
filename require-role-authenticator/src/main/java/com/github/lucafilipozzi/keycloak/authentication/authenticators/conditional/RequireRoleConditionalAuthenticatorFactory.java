@@ -2,6 +2,9 @@
 
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional;
 
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
+import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
+
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleConstants;
 import java.util.List;
 import org.keycloak.Config.Scope;
@@ -10,12 +13,14 @@ import org.keycloak.models.AuthenticationExecutionModel.Requirement;
 import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.provider.ProviderConfigProperty;
 
+@AutoService(AuthenticatorFactory.class)
 public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAuthenticatorFactory {
   public static final String PROVIDER_ID = "conditional-require-role";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { Requirement.REQUIRED, Requirement.DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {REQUIRED, DISABLED};
 
-  private static final RequireRoleConditionalAuthenticator SINGLETON = new RequireRoleConditionalAuthenticator();
+  private static final RequireRoleConditionalAuthenticator SINGLETON =
+      new RequireRoleConditionalAuthenticator();
 
   @Override
   public void close() {

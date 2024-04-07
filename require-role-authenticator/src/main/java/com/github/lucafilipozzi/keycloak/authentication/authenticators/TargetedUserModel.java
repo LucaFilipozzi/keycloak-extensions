@@ -22,11 +22,9 @@ import org.keycloak.services.managers.AuthenticationManager.AuthResult;
 
 @RequiredArgsConstructor
 public class TargetedUserModel implements UserModel {
-  @NonNull
-  private final RequireRoleContext context;
+  @NonNull private final RequireRoleContext context;
 
-  @Delegate @NonNull
-  private final UserModel user;
+  @Delegate @NonNull private final UserModel user;
 
   private final UserSessionModel userSession;
 
@@ -37,7 +35,8 @@ public class TargetedUserModel implements UserModel {
       KeycloakSession session = context.getSession();
       RealmModel realm = context.getRealm();
 
-      AuthResult authResult = AuthenticationManager.authenticateIdentityCookie(session, realm, true);
+      AuthResult authResult =
+          AuthenticationManager.authenticateIdentityCookie(session, realm, true);
       if (authResult == null) {
         return null;
       }
@@ -45,8 +44,11 @@ public class TargetedUserModel implements UserModel {
       UserSessionModel userSession = authResult.getSession();
       Map<String, String> userSessionNotes = userSession.getNotes();
       if (userSessionNotes.containsKey(ImpersonationSessionNote.IMPERSONATOR_ID.toString())) {
-        String impersonatorId = userSessionNotes.get(ImpersonationSessionNote.IMPERSONATOR_ID.toString());
-        targetedUser = new TargetedUserModel(context, session.users().getUserById(realm, impersonatorId), userSession);
+        String impersonatorId =
+            userSessionNotes.get(ImpersonationSessionNote.IMPERSONATOR_ID.toString());
+        targetedUser =
+            new TargetedUserModel(
+                context, session.users().getUserById(realm, impersonatorId), userSession);
       }
     }
 
@@ -59,25 +61,33 @@ public class TargetedUserModel implements UserModel {
         return !context.getEnforceStrictly();
       }
 
-      Set<RoleModel> clientRoles = context.getClient().getRolesStream()
-          .filter(x -> getDeepRoleCompositesStream(x).anyMatch(y -> y.equals(requiredRole)))
-          .collect(Collectors.toSet());
+      Set<RoleModel> clientRoles =
+          context
+              .getClient()
+              .getRolesStream()
+              .filter(x -> getDeepRoleCompositesStream(x).anyMatch(y -> y.equals(requiredRole)))
+              .collect(Collectors.toSet());
       Set<RoleModel> userRoles = RoleUtils.getDeepUserRoleMappings(this);
       Set<RoleModel> roleIntersection = Sets.intersection(clientRoles, userRoles);
 
       if (!roleIntersection.isEmpty()) {
-        String roles = roleIntersection.stream().map(RoleModel::getName).collect(Collectors.joining(","));
+        String roles =
+            roleIntersection.stream().map(RoleModel::getName).collect(Collectors.joining(","));
         userSession.setNote("IMPERSONATOR_ROLES", roles);
         return true; // targeted user (impersonator) has required role
       }
     } else {
-      return RoleUtils.hasRole(getRoleMappingsStream(), requiredRole)                        // cheap, try first
-          || RoleUtils.hasRole(RoleUtils.getDeepUserRoleMappings(this), requiredRole); // expensive, try next
+      return RoleUtils.hasRole(getRoleMappingsStream(), requiredRole) // cheap, try first
+          || RoleUtils.hasRole(
+              RoleUtils.getDeepUserRoleMappings(this), requiredRole); // expensive, try next
     }
     return false; // targeted user does not have required role
   }
 
-  private static Stream<RoleModel> getDeepRoleCompositesStream(final RoleModel role) { // helper function
-    return Stream.concat(Stream.of(role), role.getCompositesStream().flatMap(TargetedUserModel::getDeepRoleCompositesStream));
+  private static Stream<RoleModel> getDeepRoleCompositesStream(
+      final RoleModel role) { // helper function
+    return Stream.concat(
+        Stream.of(role),
+        role.getCompositesStream().flatMap(TargetedUserModel::getDeepRoleCompositesStream));
   }
 }

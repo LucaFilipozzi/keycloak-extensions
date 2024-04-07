@@ -20,9 +20,10 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class ForceReauthenticationAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "force-reauthentication";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {REQUIRED, DISABLED};
 
-  private static final ForceReauthenticationAuthenticator SINGLETON = new ForceReauthenticationAuthenticator();
+  private static final ForceReauthenticationAuthenticator SINGLETON =
+      new ForceReauthenticationAuthenticator();
 
   @Override
   public void close() {

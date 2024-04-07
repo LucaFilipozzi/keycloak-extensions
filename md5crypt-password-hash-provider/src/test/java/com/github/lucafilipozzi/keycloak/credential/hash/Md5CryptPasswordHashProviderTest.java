@@ -26,18 +26,20 @@ public class Md5CryptPasswordHashProviderTest {
 
   @Parameters
   public static List<Object[]> data() {
-    return Arrays.asList(new Object[][] {
-        /* password, expected */
-        { "testingonly$$1234", "$1$PhQy/mw.$dDp.eDLeG6H0gz.WlhNV./" },
-        { "Hello$$1234", "$1$v8ZrPcRS$mmBfzNIgRLnYO6jL3mWhr/" },
-        { "Wong$$5678", "$1$gr8/T6QQ$Yq/2P3RlGoTHIFmQJ.q1S/" }
-    });
+    return Arrays.asList(
+        new Object[][] {
+          /* password, expected */
+          {"testingonly$$1234", "$1$PhQy/mw.$dDp.eDLeG6H0gz.WlhNV./"},
+          {"Hello$$1234", "$1$v8ZrPcRS$mmBfzNIgRLnYO6jL3mWhr/"},
+          {"Wong$$5678", "$1$gr8/T6QQ$Yq/2P3RlGoTHIFmQJ.q1S/"}
+        });
   }
 
   @Test
   public void test() {
     String computed = Md5Crypt.md5Crypt(password.getBytes(), expected);
-    PasswordCredentialModel credential = PasswordCredentialModel.createFromValues(PROVIDER_ID, new byte[0], 0, computed);
+    PasswordCredentialModel credential =
+        PasswordCredentialModel.createFromValues(PROVIDER_ID, new byte[0], 0, computed);
     assertThat(computed, is(equalTo(expected)));
     assertThat(credential.getPasswordSecretData().getValue(), is(equalTo(expected)));
     assertThat(provider.verify(password, credential), is(equalTo(true)));

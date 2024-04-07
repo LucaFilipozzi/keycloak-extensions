@@ -54,36 +54,44 @@ public class ExtendedCookieAuthenticator extends CookieAuthenticator implements 
     RoleModel requiredRole = realm.getClientByClientId("realm-management").getRole("impersonation");
     if (impersonator == null || requiredRole == null) {
       LOG.debug("internal error");
-      Response response = context.form()
-          .setError("Server Misconfiguration")
-          .createErrorPage(Status.INTERNAL_SERVER_ERROR);
+      Response response =
+          context
+              .form()
+              .setError("Server Misconfiguration")
+              .createErrorPage(Status.INTERNAL_SERVER_ERROR);
       context.failure(AuthenticationFlowError.INTERNAL_ERROR, response);
       return;
     }
 
     ClientModel client = context.getAuthenticationSession().getClient();
-    Set<RoleModel> clientRoles = client.getRolesStream()
-        .filter(RoleModel::isComposite)
-        .filter(x -> getDeepRoleCompositesStream(x).anyMatch(y -> y.equals(requiredRole)))
-        .collect(Collectors.toSet());
+    Set<RoleModel> clientRoles =
+        client
+            .getRolesStream()
+            .filter(RoleModel::isComposite)
+            .filter(x -> getDeepRoleCompositesStream(x).anyMatch(y -> y.equals(requiredRole)))
+            .collect(Collectors.toSet());
     Set<RoleModel> impersonatorRoles = RoleUtils.getDeepUserRoleMappings(impersonator);
     Set<RoleModel> roleIntersection = Sets.intersection(clientRoles, impersonatorRoles);
     if (!roleIntersection.isEmpty()) {
       LOG.debug("access granted to impersonator");
-      userSession.setNote(IMPERSONATOR_ROLES, roleIntersection.stream()
-          .map(RoleModel::getName).collect(Collectors.joining(",")));
+      userSession.setNote(
+          IMPERSONATOR_ROLES,
+          roleIntersection.stream().map(RoleModel::getName).collect(Collectors.joining(",")));
       super.authenticate(context);
       return;
     }
 
     LOG.debug("access denied to impersonator");
-    Response response = context.form()
-        .setError("Impersonator Access Denied")
-        .createErrorPage(Status.FORBIDDEN);
+    Response response =
+        context.form().setError("Impersonator Access Denied").createErrorPage(Status.FORBIDDEN);
     context.failure(AuthenticationFlowError.ACCESS_DENIED, response);
   }
 
-  private static Stream<RoleModel> getDeepRoleCompositesStream(final RoleModel role) { // helper function
-    return Stream.concat(Stream.of(role), role.getCompositesStream().flatMap(ExtendedCookieAuthenticator::getDeepRoleCompositesStream));
+  private static Stream<RoleModel> getDeepRoleCompositesStream(
+      final RoleModel role) { // helper function
+    return Stream.concat(
+        Stream.of(role),
+        role.getCompositesStream()
+            .flatMap(ExtendedCookieAuthenticator::getDeepRoleCompositesStream));
   }
 }

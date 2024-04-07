@@ -47,27 +47,35 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
   }
 
   private void onEvent(RealmModel realm, UserModel sourceUser) {
-    PasswordCredentialProvider passwordCredentialProvider = (PasswordCredentialProvider) session
-        .getProvider(CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
+    PasswordCredentialProvider passwordCredentialProvider =
+        (PasswordCredentialProvider)
+            session.getProvider(
+                CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
 
     CredentialModel sourceCredential = passwordCredentialProvider.getPassword(realm, sourceUser);
 
-    PasswordCredentialModel targetCredential = PasswordCredentialModel.createFromCredentialModel(sourceCredential);
+    PasswordCredentialModel targetCredential =
+        PasswordCredentialModel.createFromCredentialModel(sourceCredential);
     targetCredential.setId(null);
     targetCredential.setUserLabel("password synced from " + sourceUser.getUsername());
 
-    sourceUser.getAttributeStream("password-sync").forEach(targetUsername -> {
-      UserModel targetUser = session.users().getUserByUsername(realm, targetUsername);
-      if (targetUser == null) {
-        LOG.debugf("password not synced from %s to %s (not found)", sourceUser.getUsername(), targetUsername);
-        return;
-      }
+    sourceUser
+        .getAttributeStream("password-sync")
+        .forEach(
+            targetUsername -> {
+              UserModel targetUser = session.users().getUserByUsername(realm, targetUsername);
+              if (targetUser == null) {
+                LOG.debugf(
+                    "password not synced from %s to %s (not found)",
+                    sourceUser.getUsername(), targetUsername);
+                return;
+              }
 
-      // update credential
-      passwordCredentialProvider.createCredential(realm, targetUser, targetCredential);
+              // update credential
+              passwordCredentialProvider.createCredential(realm, targetUser, targetCredential);
 
-      LOG.debugf("password synced from %s to %s", sourceUser.getUsername(), targetUsername);
-    });
+              LOG.debugf("password synced from %s to %s", sourceUser.getUsername(), targetUsername);
+            });
   }
 
   @Override

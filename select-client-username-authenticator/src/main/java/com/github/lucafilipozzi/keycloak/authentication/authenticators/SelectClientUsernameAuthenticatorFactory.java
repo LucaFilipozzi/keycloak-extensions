@@ -20,7 +20,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class SelectClientUsernameAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "select-client-username-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {REQUIRED, DISABLED};
 
   @Override
   public void close() {

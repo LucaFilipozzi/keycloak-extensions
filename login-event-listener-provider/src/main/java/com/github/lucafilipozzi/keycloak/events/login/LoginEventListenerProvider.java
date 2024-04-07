@@ -15,7 +15,8 @@ import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
 
 @JBossLog
-public class LoginEventListenerProvider extends JBossLoggingEventListenerProvider implements EventListenerProvider {
+public class LoginEventListenerProvider extends JBossLoggingEventListenerProvider
+    implements EventListenerProvider {
   public final KeycloakSession session;
   public static final String ATTRIBUTE_NAME = "last-login";
 
@@ -29,7 +30,9 @@ public class LoginEventListenerProvider extends JBossLoggingEventListenerProvide
     if (event.getType() == EventType.LOGIN) {
       RealmModel realm = session.realms().getRealm(event.getRealmId());
       UserModel user = session.users().getUserById(realm, event.getUserId());
-      LOG.tracef("setting %s on realm='%s' user='%s' userId='%s'", ATTRIBUTE_NAME, realm.getName(), user.getUsername(), user.getId());
+      LOG.tracef(
+          "setting %s on realm='%s' user='%s' userId='%s'",
+          ATTRIBUTE_NAME, realm.getName(), user.getUsername(), user.getId());
       user.setSingleAttribute(ATTRIBUTE_NAME, Long.toString(Time.currentTimeMillis()));
       super.onEvent(event);
     }

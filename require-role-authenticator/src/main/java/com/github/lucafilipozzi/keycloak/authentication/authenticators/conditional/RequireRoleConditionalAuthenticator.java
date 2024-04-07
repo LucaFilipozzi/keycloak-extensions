@@ -35,7 +35,9 @@ public class RequireRoleConditionalAuthenticator implements ConditionalAuthentic
       return false;
     }
 
-    LOG.infof("checking whether user '%s' has role '%s'", targetedUser.getUsername(), requiredRole.getName());
+    LOG.infof(
+        "checking whether user '%s' has role '%s'",
+        targetedUser.getUsername(), requiredRole.getName());
     boolean result = targetedUser.hasRequiredRole(requiredRole);
     if (context.getNegateResult().equals(Boolean.TRUE)) {
       LOG.info("negating result");

@@ -29,13 +29,19 @@ public class RequireRoleAuthenticator implements Authenticator {
     final TargetedUserModel targetedUser = TargetedUserModel.resolveFromContext(context);
 
     if (requiredRole == null || targetedUser == null) {
-      Response response = context.form().setError("Server Misconfiguration").createErrorPage(Status.INTERNAL_SERVER_ERROR);
+      Response response =
+          context
+              .form()
+              .setError("Server Misconfiguration")
+              .createErrorPage(Status.INTERNAL_SERVER_ERROR);
       context.failure(AuthenticationFlowError.INTERNAL_ERROR, response);
       LOG.info("authenticator misconfigured");
       return;
     }
 
-    LOG.infof("checking whether user '%s' has role '%s'", targetedUser.getUsername(), requiredRole.getName());
+    LOG.infof(
+        "checking whether user '%s' has role '%s'",
+        targetedUser.getUsername(), requiredRole.getName());
     boolean result = targetedUser.hasRequiredRole(requiredRole);
     if (context.getNegateResult().equals(Boolean.TRUE)) {
       LOG.info("negating result");

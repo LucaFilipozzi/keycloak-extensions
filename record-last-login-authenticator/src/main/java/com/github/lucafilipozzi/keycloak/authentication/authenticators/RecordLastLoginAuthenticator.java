@@ -23,7 +23,10 @@ public class RecordLastLoginAuthenticator implements Authenticator {
 
   @Override
   public void authenticate(AuthenticationFlowContext context) {
-    context.getUser().setSingleAttribute(NAME, new SimpleDateFormat(PATTERN).format(Time.toDate(Time.currentTime())));
+    context
+        .getUser()
+        .setSingleAttribute(
+            NAME, new SimpleDateFormat(PATTERN).format(Time.toDate(Time.currentTime())));
     context.success();
   }
 

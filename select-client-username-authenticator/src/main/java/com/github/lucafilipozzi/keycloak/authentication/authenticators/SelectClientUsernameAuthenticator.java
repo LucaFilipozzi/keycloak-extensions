@@ -25,18 +25,25 @@ public class SelectClientUsernameAuthenticator implements Authenticator {
   private Set<String> getAvailableClientUsernames(AuthenticationFlowContext context) {
     ClientModel client = context.getAuthenticationSession().getClient();
     UserModel user = context.getUser();
-    return user.getAttributeStream(client.getClientId()).filter(Predicate.not(String::isBlank)).collect(Collectors.toSet());
+    return user.getAttributeStream(client.getClientId())
+        .filter(Predicate.not(String::isBlank))
+        .collect(Collectors.toSet());
   }
 
   @Override
   public void action(@NonNull AuthenticationFlowContext context) { // process form
     Set<String> availableClientUsernames = getAvailableClientUsernames(context);
-    String selectedClientUsername = Strings.nullToEmpty(context.getHttpRequest().getDecodedFormParameters().getFirst("selectedClientUsername"));
-    if (availableClientUsernames.isEmpty() || !availableClientUsernames.contains(selectedClientUsername)) {
+    String selectedClientUsername =
+        Strings.nullToEmpty(
+            context.getHttpRequest().getDecodedFormParameters().getFirst("selectedClientUsername"));
+    if (availableClientUsernames.isEmpty()
+        || !availableClientUsernames.contains(selectedClientUsername)) {
       authenticate(context);
       return;
     }
-    context.getAuthenticationSession().setUserSessionNote(USER_SESSION_NOTE_KEY, selectedClientUsername);
+    context
+        .getAuthenticationSession()
+        .setUserSessionNote(USER_SESSION_NOTE_KEY, selectedClientUsername);
     context.success();
   }
 
@@ -53,11 +60,16 @@ public class SelectClientUsernameAuthenticator implements Authenticator {
         context.failure(AuthenticationFlowError.ACCESS_DENIED); // FIXME throws an exception
         break;
       case 1:
-        authenticationSession.setUserSessionNote(USER_SESSION_NOTE_KEY, availableClientUsernames.iterator().next());
+        authenticationSession.setUserSessionNote(
+            USER_SESSION_NOTE_KEY, availableClientUsernames.iterator().next());
         context.success();
         break;
       default:
-        Response response = context.form().setAttribute("availableClientUsernames", availableClientUsernames).createForm("select-client-username.ftl");
+        Response response =
+            context
+                .form()
+                .setAttribute("availableClientUsernames", availableClientUsernames)
+                .createForm("select-client-username.ftl");
         context.challenge(response);
         break;
     }

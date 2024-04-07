@@ -20,7 +20,7 @@ import org.keycloak.provider.ProviderConfigProperty;
 public class CustomUsernamePasswordFormFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "auth-custom-username-password-form";
 
-  private static final AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = { REQUIRED };
+  private static final AuthenticationExecutionModel.Requirement[] REQUIREMENT_CHOICES = {REQUIRED};
 
   public static final CustomUsernamePasswordForm SINGLETON = new CustomUsernamePasswordForm();
 
@@ -84,4 +84,3 @@ public class CustomUsernamePasswordFormFactory implements AuthenticatorFactory {
     // intentionally empty
   }
 }
-

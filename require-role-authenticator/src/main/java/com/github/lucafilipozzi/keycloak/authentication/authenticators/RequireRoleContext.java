@@ -11,8 +11,7 @@ import org.keycloak.models.ClientModel;
 
 @RequiredArgsConstructor
 public class RequireRoleContext {
-  @Delegate @NonNull
-  private final AuthenticationFlowContext context;
+  @Delegate @NonNull private final AuthenticationFlowContext context;
 
   private Boolean applyToImpersonator = null;
 
@@ -35,14 +34,16 @@ public class RequireRoleContext {
 
   public Boolean getApplyToImpersonator() {
     if (applyToImpersonator == null) {
-      applyToImpersonator = Boolean.parseBoolean(getConfig().get(RequireRoleConstants.APPLY_TO_IMPERSONATOR));
+      applyToImpersonator =
+          Boolean.parseBoolean(getConfig().get(RequireRoleConstants.APPLY_TO_IMPERSONATOR));
     }
     return applyToImpersonator;
   }
 
-  public Boolean getEnforceStrictly () {
+  public Boolean getEnforceStrictly() {
     if (enforceStrictly == null) {
-      enforceStrictly = Boolean.parseBoolean(getConfig().get(RequireRoleConstants.ENFORCE_STRICTLY));
+      enforceStrictly =
+          Boolean.parseBoolean(getConfig().get(RequireRoleConstants.ENFORCE_STRICTLY));
     }
     return enforceStrictly;
   }

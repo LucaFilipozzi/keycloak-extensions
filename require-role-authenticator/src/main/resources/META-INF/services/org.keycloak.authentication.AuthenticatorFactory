@@ -1,5 +1,0 @@
-# © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
-
-com.github.lucafilipozzi.keycloak.authentication.authenticators.browser.RequireRoleAuthenticatorFactory
-com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional.RequireImpersonationConditionalAuthenticatorFactory
-com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional.RequireRoleConditionalAuthenticatorFactory

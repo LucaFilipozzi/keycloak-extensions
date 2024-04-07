@@ -18,7 +18,8 @@ public class Md5CryptPasswordHashProvider implements PasswordHashProvider {
 
   @Override
   public PasswordCredentialModel encodedCredential(String password, int iterations) {
-    return PasswordCredentialModel.createFromValues(PROVIDER_ID, new byte[0], 0, md5Crypt(password));
+    return PasswordCredentialModel.createFromValues(
+        PROVIDER_ID, new byte[0], 0, md5Crypt(password));
   }
 
   @Override

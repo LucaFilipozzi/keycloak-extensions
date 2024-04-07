@@ -22,21 +22,22 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 public class UsernamePolicyAuthenticatorFactory implements AuthenticatorFactory {
   public static final String PROVIDER_ID = "username-policy-authenticator";
 
-  private static final Requirement[] REQUIREMENT_CHOICES = { REQUIRED, ALTERNATIVE, DISABLED };
+  private static final Requirement[] REQUIREMENT_CHOICES = {REQUIRED, ALTERNATIVE, DISABLED};
 
   private static final UsernamePolicyAuthenticator SINGLETON = new UsernamePolicyAuthenticator();
 
   private static final List<ProviderConfigProperty> CONFIG_PROPERTIES;
 
   static {
-    CONFIG_PROPERTIES = ProviderConfigurationBuilder.create()
-      .property()
-      .name("pattern")
-      .type(ProviderConfigProperty.STRING_TYPE)
-      .label("pattern")
-      .helpText("provide pattern to validate against")
-      .add()
-      .build();
+    CONFIG_PROPERTIES =
+        ProviderConfigurationBuilder.create()
+            .property()
+            .name("pattern")
+            .type(ProviderConfigProperty.STRING_TYPE)
+            .label("pattern")
+            .helpText("provide pattern to validate against")
+            .add()
+            .build();
   }
 
   @Override
