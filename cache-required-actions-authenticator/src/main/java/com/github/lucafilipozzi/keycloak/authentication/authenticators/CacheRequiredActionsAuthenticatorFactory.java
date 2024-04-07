@@ -33,12 +33,12 @@ public class CacheRequiredActionsAuthenticatorFactory implements AuthenticatorFa
     CONFIG_PROPERTIES =
         ProviderConfigurationBuilder.create()
             .property()
-            .name(RESTORE_PROPERTY_ID)
-            .type(BOOLEAN_TYPE)
-            .defaultValue("false")
-            .label("restore")
-            .helpText("whether to cache (default; false) or restore (true)")
-            .add()
+                .name(RESTORE_PROPERTY_ID)
+                .type(BOOLEAN_TYPE)
+                .defaultValue("false")
+                .label("restore")
+                .helpText("whether to cache (default; false) or restore (true)")
+                .add()
             .build();
   }
 
