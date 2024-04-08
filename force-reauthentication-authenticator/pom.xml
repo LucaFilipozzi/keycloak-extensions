@@ -33,7 +33,7 @@
   <dependencies>
     <dependency>
       <groupId>com.google.auto.service</groupId>
-      <artifactId>auto-service-annotations</artifactId>
+      <artifactId>auto-service</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
