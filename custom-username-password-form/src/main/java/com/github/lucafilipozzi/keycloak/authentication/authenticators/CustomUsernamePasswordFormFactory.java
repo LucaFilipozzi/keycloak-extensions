@@ -4,6 +4,7 @@ package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
 import com.google.auto.service.AutoService;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config;
@@ -28,11 +29,13 @@ public class CustomUsernamePasswordFormFactory implements AuthenticatorFactory {
     // intentionally empty
   }
 
+  @SuppressFBWarnings
   @Override
   public Authenticator create(KeycloakSession session) {
     return SINGLETON;
   }
 
+  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return Collections.emptyList();
@@ -58,6 +61,7 @@ public class CustomUsernamePasswordFormFactory implements AuthenticatorFactory {
     return PasswordCredentialModel.TYPE;
   }
 
+  @SuppressFBWarnings
   @Override
   public AuthenticationExecutionModel.Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;

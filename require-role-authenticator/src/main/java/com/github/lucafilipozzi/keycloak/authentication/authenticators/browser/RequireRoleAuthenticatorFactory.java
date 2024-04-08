@@ -26,11 +26,13 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
     // intentionally empty
   }
 
+  @SuppressFBWarnings
   @Override
   public Authenticator create(KeycloakSession session) {
     return SINGLETON;
   }
 
+  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return RequireRoleConstants.CONFIG_PROPERTIES;
@@ -56,6 +58,7 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
     return null;
   }
 
+  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;

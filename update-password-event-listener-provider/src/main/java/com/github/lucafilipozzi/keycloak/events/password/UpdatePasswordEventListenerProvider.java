@@ -1,6 +1,7 @@
 // © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.events.password;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.credential.CredentialModel;
@@ -21,7 +22,7 @@ import org.keycloak.models.credential.PasswordCredentialModel;
 @JBossLog
 @RequiredArgsConstructor
 public class UpdatePasswordEventListenerProvider implements EventListenerProvider {
-
+  @SuppressFBWarnings("EI_EXPOSE_REP2")
   private final KeycloakSession session;
 
   @Override

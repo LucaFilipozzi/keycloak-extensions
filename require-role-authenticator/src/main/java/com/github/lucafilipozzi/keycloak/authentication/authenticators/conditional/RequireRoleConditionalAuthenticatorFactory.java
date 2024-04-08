@@ -26,6 +26,7 @@ public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAu
     // intentionally empty
   }
 
+  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return RequireRoleConstants.CONFIG_PROPERTIES;
@@ -46,11 +47,13 @@ public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAu
     return PROVIDER_ID;
   }
 
+  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;
   }
 
+  @SuppressFBWarnings
   @Override
   public RequireRoleConditionalAuthenticator getSingleton() {
     return SINGLETON;

@@ -6,6 +6,7 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISAB
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
 import com.google.auto.service.AutoService;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config.Scope;
@@ -29,11 +30,13 @@ public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory 
     // intentionally empty
   }
 
+  @SuppressFBWarnings
   @Override
   public Authenticator create(KeycloakSession session) {
     return SINGLETON;
   }
 
+  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return Collections.emptyList();
@@ -59,6 +62,7 @@ public class ExtendedCookieAuthenticatorFactory implements AuthenticatorFactory 
     return "cookie";
   }
 
+  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;

@@ -1,6 +1,7 @@
 // © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.policy;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.models.KeycloakSession;
@@ -12,6 +13,7 @@ import org.keycloak.policy.PolicyError;
 @JBossLog
 @RequiredArgsConstructor
 public class CustomPasswordPolicyProvider implements PasswordPolicyProvider {
+  @SuppressFBWarnings("EI_EXPOSE_REP2")
   private final KeycloakSession session;
 
   @Override

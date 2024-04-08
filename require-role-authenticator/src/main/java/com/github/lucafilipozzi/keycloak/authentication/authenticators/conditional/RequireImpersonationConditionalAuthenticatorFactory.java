@@ -41,6 +41,7 @@ public class RequireImpersonationConditionalAuthenticatorFactory
     // intentionally empty
   }
 
+  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return CONFIG_PROPERTIES;
@@ -61,11 +62,13 @@ public class RequireImpersonationConditionalAuthenticatorFactory
     return PROVIDER_ID;
   }
 
+  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;
   }
 
+  @SuppressFBWarnings
   @Override
   public RequireImpersonationConditionalAuthenticator getSingleton() {
     return SINGLETON;

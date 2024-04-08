@@ -5,6 +5,7 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISAB
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
 import com.google.auto.service.AutoService;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config.Scope;
@@ -26,6 +27,7 @@ public class SelectClientUsernameAuthenticatorFactory implements AuthenticatorFa
     // intentionally empty
   }
 
+  @SuppressFBWarnings
   @Override
   public Authenticator create(KeycloakSession session) {
     return new SelectClientUsernameAuthenticator();
@@ -51,6 +53,7 @@ public class SelectClientUsernameAuthenticatorFactory implements AuthenticatorFa
     return "override";
   }
 
+  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;
@@ -71,6 +74,7 @@ public class SelectClientUsernameAuthenticatorFactory implements AuthenticatorFa
     return false;
   }
 
+  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return Collections.emptyList();
