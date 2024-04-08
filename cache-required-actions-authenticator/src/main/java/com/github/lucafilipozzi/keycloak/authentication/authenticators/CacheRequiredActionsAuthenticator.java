@@ -1,7 +1,10 @@
 // © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;
@@ -26,14 +29,25 @@ public class CacheRequiredActionsAuthenticator implements Authenticator {
     AuthenticatorConfigModel authenticatorConfig = context.getAuthenticatorConfig();
     if (authenticatorConfig != null) {
       UserModel user = context.getUser();
-      if (Boolean.parseBoolean(
-          authenticatorConfig.getConfig().getOrDefault(RESTORE_PROPERTY_ID, "false"))) {
-        user.getAttributeStream(ATTRIBUTE_NAME).forEach(user::addRequiredAction);
+      boolean restore =
+          Boolean.parseBoolean(
+              authenticatorConfig.getConfig().getOrDefault(RESTORE_PROPERTY_ID, "false"));
+      if (restore) {
+        user.getAttributeStream(ATTRIBUTE_NAME)
+            .collect(Collectors.toSet())
+            .forEach(user::addRequiredAction);
         user.removeAttribute(ATTRIBUTE_NAME);
-      } else {
+      } else { // cache
+        Set<String> newRequiredActions =
+            user.getRequiredActionsStream().collect(Collectors.toSet());
+        Set<String> oldRequiredActions =
+            user.getAttributeStream(ATTRIBUTE_NAME).collect(Collectors.toSet());
         user.setAttribute(
-            ATTRIBUTE_NAME, user.getRequiredActionsStream().collect(Collectors.toList()));
-        user.getRequiredActionsStream().forEach(user::removeRequiredAction);
+            ATTRIBUTE_NAME,
+            List.copyOf(
+                Stream.concat(newRequiredActions.stream(), oldRequiredActions.stream())
+                    .collect(Collectors.toSet())));
+        newRequiredActions.forEach(user::removeRequiredAction);
       }
     }
     context.success();
