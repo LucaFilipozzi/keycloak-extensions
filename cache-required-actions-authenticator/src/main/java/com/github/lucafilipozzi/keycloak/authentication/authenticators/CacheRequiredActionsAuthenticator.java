@@ -2,7 +2,9 @@
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.jbosslog.JBossLog;
@@ -46,6 +48,8 @@ public class CacheRequiredActionsAuthenticator implements Authenticator {
             ATTRIBUTE_NAME,
             List.copyOf(
                 Stream.concat(newRequiredActions.stream(), oldRequiredActions.stream())
+                    .filter(Objects::nonNull)
+                    .filter(Predicate.not(String::isBlank))
                     .collect(Collectors.toSet())));
         newRequiredActions.forEach(user::removeRequiredAction);
       }
