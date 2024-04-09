@@ -37,7 +37,7 @@
   </scm>
 
   <properties>
-    <revision>1.6.0</revision>
+    <revision>1.6.1</revision>
     <github.account>LucaFilipozzi</github.account>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <keycloak.version>18.0.2</keycloak.version>

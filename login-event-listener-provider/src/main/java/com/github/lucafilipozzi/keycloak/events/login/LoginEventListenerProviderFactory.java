@@ -83,14 +83,17 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
         .forEach(
             realm -> {
               if (realm.getEventsListenersStream().noneMatch(x -> x.equals(PROVIDER_ID))) {
-                LOG.debugf("realm='%s' does not have 'Login Event Listener' enabled", realm.getName());
+                LOG.debugf(
+                    "realm='%s' does not have 'Login Event Listener' enabled", realm.getName());
                 return;
               }
 
               PasswordPolicy passwordPolicy = realm.getPasswordPolicy();
               if (passwordPolicy == null
                   || !passwordPolicy.getPolicies().contains("disable-users-password-policy")) {
-                LOG.debugf("realm='%s' does not have 'Disable Users' password policy set", realm.getName());
+                LOG.debugf(
+                    "realm='%s' does not have 'Disable Users' password policy set",
+                    realm.getName());
                 return;
               }
 
