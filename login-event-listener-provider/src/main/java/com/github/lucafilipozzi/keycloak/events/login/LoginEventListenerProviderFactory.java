@@ -49,17 +49,15 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
   @Override
   public void postInit(KeycloakSessionFactory factory) {
-    LOG.error("postInit() - entry");
     factory.register(
         event -> {
           if (event instanceof PostMigrationEvent) {
-            LOG.error("postInit() - registering task");
+            LOG.debug("registering disable-users-task");
             KeycloakSession session = factory.create();
             TimerProvider timer = session.getProvider(TimerProvider.class);
             timer.scheduleTask(this::disableUsers, taskInterval, "disable-users-task");
           }
         });
-    LOG.error("postInit() - entry");
   }
 
   @Override
@@ -86,7 +84,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
         .forEach(
             realm -> {
               if (realm.getEventsListenersStream().noneMatch(x -> x.equals(PROVIDER_ID))) {
-                LOG.warnf(
+                LOG.debugf(
                     "realm='%s' does not have 'Login Event Listener' enabled", realm.getName());
                 return;
               }
@@ -94,7 +92,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               PasswordPolicy passwordPolicy = realm.getPasswordPolicy();
               if (passwordPolicy == null
                   || !passwordPolicy.getPolicies().contains("disable-users-password-policy")) {
-                LOG.warnf(
+                LOG.debugf(
                     "realm='%s' does not have 'Disable Users' password policy set",
                     realm.getName());
                 return;
@@ -104,7 +102,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
               long gracePeriodMillis = gracePeriodDays * DAYS_TO_MILLIS;
 
-              LOG.warnf(
+              LOG.infof(
                   "checking realm='%s' for expired passwords or inactive accounts exceeding %d day(s)",
                   realm.getName(), gracePeriodDays);
 
