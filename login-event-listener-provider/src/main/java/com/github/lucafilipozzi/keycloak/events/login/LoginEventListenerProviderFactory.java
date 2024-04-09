@@ -49,14 +49,17 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
   @Override
   public void postInit(KeycloakSessionFactory factory) {
+    LOG.error("postInit() - entry");
     factory.register(
         event -> {
           if (event instanceof PostMigrationEvent) {
+            LOG.error("postInit() - registering task");
             KeycloakSession session = factory.create();
             TimerProvider timer = session.getProvider(TimerProvider.class);
             timer.scheduleTask(this::disableUsers, taskInterval, "disable-users-task");
           }
         });
+    LOG.error("postInit() - entry");
   }
 
   @Override
