@@ -83,7 +83,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
         .forEach(
             realm -> {
               if (realm.getEventsListenersStream().noneMatch(x -> x.equals(PROVIDER_ID))) {
-                LOG.debugf(
+                LOG.warnf(
                     "realm='%s' does not have 'Login Event Listener' enabled", realm.getName());
                 return;
               }
@@ -91,7 +91,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               PasswordPolicy passwordPolicy = realm.getPasswordPolicy();
               if (passwordPolicy == null
                   || !passwordPolicy.getPolicies().contains("disable-users-password-policy")) {
-                LOG.debugf(
+                LOG.warnf(
                     "realm='%s' does not have 'Disable Users' password policy set",
                     realm.getName());
                 return;
@@ -101,7 +101,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
               long gracePeriodMillis = gracePeriodDays * DAYS_TO_MILLIS;
 
-              LOG.infof(
+              LOG.warnf(
                   "checking realm='%s' for expired passwords or inactive accounts exceeding %d day(s)",
                   realm.getName(), gracePeriodDays);
 
