@@ -11,7 +11,7 @@
     <version>${revision}</version>
   </parent>
 
-  <artifactId>custom-password-policy-provider</artifactId>
+  <artifactId>disable-users-password-policy-provider</artifactId>
   <packaging>jar</packaging>
 
   <licenses>

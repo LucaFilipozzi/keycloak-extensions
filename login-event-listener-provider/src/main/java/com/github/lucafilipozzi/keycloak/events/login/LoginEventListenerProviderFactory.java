@@ -19,6 +19,7 @@ import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.KeycloakSessionFactory;
+import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.timer.TimerProvider;
@@ -28,20 +29,13 @@ import org.keycloak.timer.TimerProvider;
 public class LoginEventListenerProviderFactory implements EventListenerProviderFactory {
   public static final String PROVIDER_ID = "login-event-listener";
 
-  private static final long EXPIRED_PASSWORD_GRACE_PERIOD =
-      60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-  //
-  private static final long INACTIVE_ACCOUNT_GRACE_PERIOD =
-      60 * 24 * 60 * 60 * 1000L; // 60 days in milliseconds
-  //
-  private static final long DISABLE_USERS_TASK_INTERVAL =
-      24 * 60 * 60 * 1000L; //  1 day  in milliseconds
+  private static final long DAYS_TO_MILLIS = 86400000L;
 
-  private long expiredPasswordGracePeriod;
+  private static final long SECS_TO_MILLIS = 1000L;
 
-  private long inactiveAccountGracePeriod;
+  private static final long TASK_INTERVAL = 86400; //  1 day  in seconds
 
-  private long disableUsersTaskInterval;
+  private long taskInterval;
 
   @Override
   public EventListenerProvider create(KeycloakSession session) {
@@ -50,12 +44,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
   @Override
   public void init(Config.Scope config) {
-    expiredPasswordGracePeriod =
-        config.getLong("expiredPasswordGradePeriod", EXPIRED_PASSWORD_GRACE_PERIOD);
-    inactiveAccountGracePeriod =
-        config.getLong("inactiveAccountGracePeriod", INACTIVE_ACCOUNT_GRACE_PERIOD);
-    disableUsersTaskInterval =
-        config.getLong("disableUsersTaskInterval", DISABLE_USERS_TASK_INTERVAL);
+    taskInterval = config.getLong("taskInterval", TASK_INTERVAL) * SECS_TO_MILLIS;
   }
 
   @Override
@@ -65,7 +54,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
           if (event instanceof PostMigrationEvent) {
             KeycloakSession session = factory.create();
             TimerProvider timer = session.getProvider(TimerProvider.class);
-            timer.scheduleTask(this::disableUsers, disableUsersTaskInterval, "disable-users-task");
+            timer.scheduleTask(this::disableUsers, taskInterval, "disable-users-task");
           }
         });
   }
@@ -85,24 +74,41 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
         (PasswordCredentialProvider)
             session.getProvider(
                 CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
+
     long currentTimeMillis = Time.currentTimeMillis();
+
     session
         .realms()
         .getRealmsStream()
-        .filter(
-            realm ->
-                realm
-                    .getEventsListenersStream()
-                    .anyMatch(eventListenerName -> eventListenerName.equals(PROVIDER_ID)))
         .forEach(
             realm -> {
+              if (realm.getEventsListenersStream().noneMatch(x -> x.equals(PROVIDER_ID))) {
+                LOG.debugf("realm='%s' does not have 'Login Event Listener' enabled", realm.getName());
+                return;
+              }
+
+              PasswordPolicy passwordPolicy = realm.getPasswordPolicy();
+              if (passwordPolicy == null
+                  || !passwordPolicy.getPolicies().contains("disable-users-password-policy")) {
+                LOG.debugf("realm='%s' does not have 'Disable Users' password policy set", realm.getName());
+                return;
+              }
+
+              int gracePeriodDays = passwordPolicy.getPolicyConfig("disable-users-password-policy");
+
+              long gracePeriodMillis = gracePeriodDays * DAYS_TO_MILLIS;
+
+              LOG.infof(
+                  "checking realm='%s' for expired passwords or inactive accounts exceeding %d day(s)",
+                  realm.getName(), gracePeriodDays);
+
               Predicate<UserModel> expiredPassword =
                   user -> {
                     CredentialModel credential =
                         passwordCredentialProvider.getPassword(realm, user);
                     if (credential != null
                         && ((currentTimeMillis - credential.getCreatedDate())
-                            > expiredPasswordGracePeriod)) {
+                            > gracePeriodMillis)) {
                       LOG.warnf(
                           "disabled realm='%s' user='%s' userId='%s' for expired password",
                           realm.getName(), user.getUsername(), user.getId());
@@ -116,7 +122,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
                     String lastLogin = user.getFirstAttribute(ATTRIBUTE_NAME);
                     if (NumberUtils.isNumber(lastLogin)
                         && ((currentTimeMillis - NumberUtils.toLong(lastLogin))
-                            > inactiveAccountGracePeriod)) {
+                            > gracePeriodMillis)) {
                       LOG.warnf(
                           "disabled realm='%s' user='%s' userId='%s' for inactive account",
                           realm.getName(), user.getUsername(), user.getId());
@@ -130,10 +136,6 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
                     user.setEnabled(false);
                     session.userCache().evict(realm, user);
                   };
-
-              LOG.debugf(
-                  "checking realm='%s' for expired passwords or inactive accounts",
-                  realm.getName());
 
               session
                   .userLocalStorage()
