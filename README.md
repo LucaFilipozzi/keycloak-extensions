@@ -1,6 +1,5 @@
 [![license][license-img]][license-url]
 [![latest tag][latest-tag-img]][latest-tag-url]
-
 [![lines of code][lines-of-code-img]][lines-of-code-url]
 [![maintainability][maintainability-img]][maintainability-url]
 [![technical debt][technical-debt-img]][technical-debt-url]
