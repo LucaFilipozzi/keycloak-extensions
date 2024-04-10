@@ -91,9 +91,11 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
               PasswordPolicy passwordPolicy = realm.getPasswordPolicy();
               if (passwordPolicy == null
-                  || !passwordPolicy.getPolicies().contains("disable-users-password-policy")) {
+                  || !passwordPolicy.getPolicies().contains("disable-users-password-policy")
+                  || !passwordPolicy.getPolicies().contains(PasswordPolicy.FORCE_EXPIRED_ID)
+                  || passwordPolicy.getDaysToExpirePassword() < 0) {
                 LOG.debugf(
-                    "realm='%s' does not have 'Disable Users' password policy set",
+                    "realm='%s' does not have 'Disable Users' and/or 'Expire Password' password policies set",
                     realm.getName());
                 return;
               }
@@ -101,6 +103,8 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               int gracePeriodDays = passwordPolicy.getPolicyConfig("disable-users-password-policy");
 
               long gracePeriodMillis = gracePeriodDays * DAYS_TO_MILLIS;
+
+              long expirePasswordMillis = passwordPolicy.getDaysToExpirePassword() * DAYS_TO_MILLIS;
 
               LOG.infof(
                   "checking realm='%s' for expired passwords or inactive accounts exceeding %d day(s)",
@@ -112,7 +116,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
                         passwordCredentialProvider.getPassword(realm, user);
                     if (credential != null
                         && ((currentTimeMillis - credential.getCreatedDate())
-                            > gracePeriodMillis)) {
+                            > (gracePeriodMillis + expirePasswordMillis))) {
                       LOG.warnf(
                           "disabled realm='%s' user='%s' userId='%s' for expired password",
                           realm.getName(), user.getUsername(), user.getId());
