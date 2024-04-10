@@ -1,5 +1,7 @@
 [![license][license-img]][license-url]
 [![latest tag][latest-tag-img]][latest-tag-url]
+[![codeql][codeql-img]][codeql-url]
+
 [![lines of code][lines-of-code-img]][lines-of-code-url]
 [![maintainability][maintainability-img]][maintainability-url]
 [![technical debt][technical-debt-img]][technical-debt-url]
@@ -19,10 +21,11 @@ respective descriptions.
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
 
 [license-img]: https://badgen.net/github/license/LucaFilipozzi/keycloak-extensions?icon=github
-[license-url]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE
+[license-url]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
 [latest-tag-img]: https://badgen.net/github/tag/LucaFilipozzi/keycloak-extensions?icon=github
 [latest-tag-url]: https://github.com/LucaFilipozzi/keycloak-extensions/tags
-
+[codeql-img]: https://github.com/LucaFilipozzi/keycloak-extensions/actions/workflows/github-code-scanning/codeql/badge.svg
+[codeql-url]: https://github.com/LucaFilipozzi/keycloak-extensions/actions/workflows/github-code-scanning/codeql
 [lines-of-code-img]: https://badgen.net/codeclimate/loc/LucaFilipozzi/keycloak-extensions?icon=codeclimate
 [lines-of-code-url]: https://codeclimate.com/github/LucaFilipozzi/keycloak-extensions
 [maintainability-img]: https://badgen.net/codeclimate/maintainability/LucaFilipozzi/keycloak-extensions?icon=codeclimate
