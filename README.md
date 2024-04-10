@@ -1,3 +1,6 @@
+[![license][license-img]][license-url]
+[![latest tag][latest-tag-img]][latest-tag-url]
+
 # keycloak-extensions
 
 This parent project contains various modules that implement keycloak
@@ -12,3 +15,7 @@ respective descriptions.
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
 
+[license-img]: https://badgen.net/github/license/LucaFilipozzi/keycloak-regex-mapper?icon=github
+[license-url]: https://github.com/LucaFilipozzi/keycloak-regex-mapper/blob/main/LICENSE
+[latest-tag-img]: https://badgen.net/github/tag/LucaFilipozzi/keycloak-regex-mapper?icon=github
+[latest-tag-url]: https://github.com/LucaFilipozzi/keycloak-regex-mapper/tags
