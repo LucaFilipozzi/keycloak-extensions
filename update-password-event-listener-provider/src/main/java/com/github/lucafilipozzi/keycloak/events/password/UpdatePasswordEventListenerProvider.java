@@ -2,8 +2,11 @@
 package com.github.lucafilipozzi.keycloak.events.password;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
+import org.keycloak.common.util.Time;
 import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.CredentialProvider;
 import org.keycloak.credential.PasswordCredentialProvider;
@@ -22,6 +25,10 @@ import org.keycloak.models.credential.PasswordCredentialModel;
 @JBossLog
 @RequiredArgsConstructor
 public class UpdatePasswordEventListenerProvider implements EventListenerProvider {
+  private static final String PATTERN = "yyyy-MM-dd HH:mm:ss z";
+
+  private static final String TIMEZONE = "America/Vancouver";
+
   @SuppressFBWarnings("EI_EXPOSE_REP2")
   private final KeycloakSession session;
 
@@ -46,6 +53,9 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
   }
 
   private void onEvent(RealmModel realm, UserModel sourceUser) {
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(PATTERN);
+    simpleDateFormat.setTimeZone(TimeZone.getTimeZone(TIMEZONE));
+
     PasswordCredentialProvider passwordCredentialProvider =
         (PasswordCredentialProvider)
             session.getProvider(
@@ -56,7 +66,9 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
     PasswordCredentialModel targetCredential =
         PasswordCredentialModel.createFromCredentialModel(sourceCredential);
     targetCredential.setId(null);
-    targetCredential.setUserLabel("password synced from " + sourceUser.getUsername());
+    targetCredential.setUserLabel("password synced from " +
+      sourceUser.getUsername() + " on " +
+      simpleDateFormat.format(Time.toDate(Time.currentTime())));
 
     sourceUser
         .getAttributeStream("password-sync")
