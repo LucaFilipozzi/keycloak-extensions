@@ -1,4 +1,4 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.events.login;
 
 import lombok.extern.jbosslog.JBossLog;
@@ -17,7 +17,7 @@ import org.keycloak.models.UserModel;
 public class LoginEventListenerProvider extends JBossLoggingEventListenerProvider
     implements EventListenerProvider {
   public final KeycloakSession session;
-  public static final String ATTRIBUTE_NAME = "last-login";
+  public static final String LAST_LOGIN_ATTRIBUTE_NAME = "last-login";
 
   public LoginEventListenerProvider(KeycloakSession session, Logger logger) {
     super(session, logger, Logger.Level.WARN, Logger.Level.WARN);
@@ -31,8 +31,8 @@ public class LoginEventListenerProvider extends JBossLoggingEventListenerProvide
       UserModel user = session.users().getUserById(realm, event.getUserId());
       LOG.tracef(
           "setting %s on realm='%s' user='%s' userId='%s'",
-          ATTRIBUTE_NAME, realm.getName(), user.getUsername(), user.getId());
-      user.setSingleAttribute(ATTRIBUTE_NAME, Long.toString(Time.currentTimeMillis()));
+          LAST_LOGIN_ATTRIBUTE_NAME, realm.getName(), user.getUsername(), user.getId());
+      user.setSingleAttribute(LAST_LOGIN_ATTRIBUTE_NAME, Long.toString(Time.currentTimeMillis()));
       super.onEvent(event);
     }
   }

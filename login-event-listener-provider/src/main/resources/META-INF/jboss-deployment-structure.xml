@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- © 2024 Luca Filipozzi. Some rights reserved. See LICENSE. -->
+<!-- © 2025 Luca Filipozzi. Some rights reserved. See LICENSE. -->
 <jboss-deployment-structure>
   <deployment>
     <dependencies>
+      <module name="com.google.guava" export="true"/>
       <module name="org.apache.commons.lang" export="true"/>
       <module name="org.jboss.logging" export="true"/>
       <module name="org.keycloak.keycloak-common" export="true"/>
