@@ -49,7 +49,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
   private static final String LAST_WARNING_ATTRIBUTE_NAME = "last-warning";
 
-  private static final String DAYS_TO_PASSWORD_EXPIRY_ATTRIBUTE_NAME = "days-to-password-expiry";
+  private static final String DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME = "days-until-password-expiry";
 
   private long taskInterval;
 
@@ -125,7 +125,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               LOG.infof("in realm '%s', user '%s' disabled due to inactivity", realm.getName(), user.getUsername());
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
-              user.removeAttribute(DAYS_TO_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
+              user.removeAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
               session.userCache().evict(realm, user);
               return;
             }
@@ -134,7 +134,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
             if (Objects.isNull(credential)) {
               LOG.debugf("in realm '%s', user '%s' has no password", realm.getName(), user.getUsername());
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
-              user.removeAttribute(DAYS_TO_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
+              user.removeAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
               session.userCache().evict(realm, user);
               return;
             }
@@ -144,7 +144,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               LOG.infof("in realm '%s', user '%s' disabled due to expired password", realm.getName(), user.getUsername());
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
-              user.removeAttribute(DAYS_TO_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
+              user.removeAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
               session.userCache().evict(realm, user);
               return;
             }
@@ -152,10 +152,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
             long passwordExpiringDays = Duration.ofMillis(credentialTime + maxPasswordAge - currentTime).toDays();
             long lastWarningTime = NumberUtils.toLong(user.getFirstAttribute(LAST_WARNING_ATTRIBUTE_NAME));
             long nextWarningTime = Optional.ofNullable(
-                warningIntervals.stream()
-                    .map(warningInterval -> warningInterval + maxPasswordAge + credentialTime)
-                    .collect(Collectors.toCollection(TreeSet::new))
-                    .floor(currentTime)
+                warningIntervals.stream().map(warningInterval -> warningInterval + maxPasswordAge + credentialTime).collect(Collectors.toCollection(TreeSet::new)).floor(currentTime)
             ).orElse(0L);
             if (lastWarningTime < nextWarningTime) {
               try {
@@ -168,17 +165,13 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               }
             }
 
-            user.setSingleAttribute(DAYS_TO_PASSWORD_EXPIRY_ATTRIBUTE_NAME, Long.toString(Long.max(passwordExpiringDays, 0L)));
+            user.setSingleAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME, Long.toString(Long.max(passwordExpiringDays, 0L)));
             session.userCache().evict(realm, user);
           };
 
           session.getContext().setRealm(realm);
-
-          session
-              .userLocalStorage()
-              .getUsersStream(realm)
-              .filter(UserModel::isEnabled)
-              .forEach(warnOrDisableUser);
+          session.userLocalStorage().getUsersStream(realm).filter(UserModel::isEnabled).forEach(warnOrDisableUser);
+          session.getContext().setRealm(null);
         });
   }
 }

@@ -56,7 +56,7 @@ This event listener provider performs three functions:
         - pattern validator
             - pattern:`^[0-9]+$`
             - message: `invalid timestamp (in milliseconds)`
-5. add a `days-to-password-recovery` attribute to the realm's declarative user profile with
+5. add a `days-until-password-recovery` attribute to the realm's declarative user profile with
     - permissions
         - user can view set false
         - admin can view set true
@@ -70,7 +70,7 @@ This event listener provider performs three functions:
     - `$KEYCLOAK_HOME/themes/<theme>/email/messages/messages_en.properties` containing
        ```
       passwordExpiringSubject=Your password is expiring soon!
-      passwordExpiringBody=Your password in realm {0} is expiring in {1} day(s). Please log in and update your password before it expires.
+      passwordExpiringBodyText=Your password in realm {0} is expiring in {1} day(s). Please log in and update your password before it expires.
       passwordExpiringBodyHtml=<p>Your password in realm {0} is expiring in {1} day(s). Please log in and update your password before it expires.</p>
       ```
    - `$KEYCLOAK_HOME/themes/<theme>/email/html/password-expiring.ftl` containing
@@ -84,7 +84,7 @@ This event listener provider performs three functions:
    - `$KEYCLOAK_HOME/themes/<mytheme>/email/text/password-expiring.ftl` containing
       ```
       <#ftl output_format="plainText">
-      ${msg("passwordExpiringBody", realm.displayName, passwordExpiringDays)}
+      ${msg("passwordExpiringBodyText", realm.displayName, passwordExpiringDays)}
       ```
 8. set the realm's email theme to `mytheme`
 
