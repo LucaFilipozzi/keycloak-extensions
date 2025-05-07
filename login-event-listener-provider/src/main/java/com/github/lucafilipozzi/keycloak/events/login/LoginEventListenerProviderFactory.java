@@ -115,13 +115,13 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
         .forEach(realm -> {
           LOG.infof("in realm '%s', warning or disabling users", realm.getName());
 
-          long gracePeriod = Duration.ofDays(((Number)realm.getPasswordPolicy().getPolicyConfig("disable-users-password-policy")).longValue()).toMillis();
+          long maxLastLoginAge = Duration.ofDays(((Number)realm.getPasswordPolicy().getPolicyConfig("disable-users-password-policy")).longValue()).toMillis();
 
           long maxPasswordAge = Duration.ofDays(realm.getPasswordPolicy().getDaysToExpirePassword()).toMillis();
 
           Consumer<UserModel> warnOrDisableUser = user -> {
             long lastLoginTime = NumberUtils.toLong(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME));
-            if ((currentTime - lastLoginTime) > gracePeriod) {
+            if ((currentTime - lastLoginTime) > maxLastLoginAge) {
               LOG.infof("in realm '%s', user '%s' disabled due to inactivity", realm.getName(), user.getUsername());
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
@@ -140,7 +140,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
             }
 
             long credentialTime = credential.getCreatedDate();
-            if ((currentTime - credentialTime) > (gracePeriod + maxPasswordAge)) {
+            if ((currentTime - credentialTime) > maxPasswordAge) {
               LOG.infof("in realm '%s', user '%s' disabled due to expired password", realm.getName(), user.getUsername());
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
