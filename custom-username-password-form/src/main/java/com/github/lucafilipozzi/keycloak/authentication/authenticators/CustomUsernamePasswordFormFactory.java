@@ -4,7 +4,6 @@ package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
 import com.google.auto.service.AutoService;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collections;
 import java.util.List;
 import org.keycloak.Config;

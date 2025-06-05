@@ -1,7 +1,6 @@
 // © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.events.password;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,6 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
 
   private static final String TIMEZONE = "America/Vancouver";
 
-  @SuppressFBWarnings("EI_EXPOSE_REP2")
   private final KeycloakSession session;
 
   @Override

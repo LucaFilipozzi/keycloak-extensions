@@ -2,10 +2,6 @@
 [![latest tag][latest-tag-img]][latest-tag-url]
 [![codeql][codeql-img]][codeql-url]
 
-[![lines of code][lines-of-code-img]][lines-of-code-url]
-[![maintainability][maintainability-img]][maintainability-url]
-[![technical debt][technical-debt-img]][technical-debt-url]
-
 # keycloak-extensions
 
 This parent project contains various modules that implement keycloak
@@ -15,7 +11,6 @@ Please see the README.md files contained within each module for their
 respective descriptions.
 
 ---
-
 © 2025 Luca Filipozzi. Some rights reserved. See [LICENSE][license].
 
 [license]: https://github.com/LucaFilipozzi/keycloak-extensions/blob/main/LICENSE.md
@@ -26,9 +21,3 @@ respective descriptions.
 [latest-tag-url]: https://github.com/LucaFilipozzi/keycloak-extensions/tags
 [codeql-img]: https://github.com/LucaFilipozzi/keycloak-extensions/actions/workflows/github-code-scanning/codeql/badge.svg
 [codeql-url]: https://github.com/LucaFilipozzi/keycloak-extensions/actions/workflows/github-code-scanning/codeql
-[lines-of-code-img]: https://badgen.net/codeclimate/loc/LucaFilipozzi/keycloak-extensions?icon=codeclimate
-[lines-of-code-url]: https://codeclimate.com/github/LucaFilipozzi/keycloak-extensions
-[maintainability-img]: https://badgen.net/codeclimate/maintainability/LucaFilipozzi/keycloak-extensions?icon=codeclimate
-[maintainability-url]: https://codeclimate.com/github/LucaFilipozzi/keycloak-extensions/maintainability
-[technical-debt-img]: https://badgen.net/codeclimate/tech-debt/LucaFilipozzi/keycloak-extensions?icon=codeclimate
-[technical-debt-url]: https://codeclimate.com/github/LucaFilipozzi/keycloak-extensions/maintainability
