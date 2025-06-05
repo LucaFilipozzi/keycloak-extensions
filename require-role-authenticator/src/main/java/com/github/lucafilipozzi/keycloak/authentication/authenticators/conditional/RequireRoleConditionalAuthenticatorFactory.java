@@ -1,10 +1,11 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional;
 
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleConstants;
+import com.google.auto.service.AutoService;
 import java.util.List;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticatorFactory;
@@ -26,7 +27,6 @@ public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAu
     // intentionally empty
   }
 
-  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return RequireRoleConstants.CONFIG_PROPERTIES;
@@ -47,13 +47,11 @@ public class RequireRoleConditionalAuthenticatorFactory implements ConditionalAu
     return PROVIDER_ID;
   }
 
-  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;
   }
 
-  @SuppressFBWarnings
   @Override
   public RequireRoleConditionalAuthenticator getSingleton() {
     return SINGLETON;

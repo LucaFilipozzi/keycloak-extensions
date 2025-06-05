@@ -1,3 +1,5 @@
 # © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
-config.stopBubbling = true
-lombok.log.fieldName = LOG
+
+[tools]
+java = "corretto-17"
+maven = "3.9.8"

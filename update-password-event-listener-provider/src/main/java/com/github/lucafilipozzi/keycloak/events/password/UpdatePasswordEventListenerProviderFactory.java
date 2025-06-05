@@ -1,4 +1,4 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.events.password;
 
 import com.google.auto.service.AutoService;

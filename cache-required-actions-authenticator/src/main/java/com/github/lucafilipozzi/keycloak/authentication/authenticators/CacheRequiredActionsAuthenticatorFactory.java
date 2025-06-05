@@ -1,4 +1,4 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import static com.github.lucafilipozzi.keycloak.authentication.authenticators.CacheRequiredActionsAuthenticator.RESTORE_PROPERTY_ID;

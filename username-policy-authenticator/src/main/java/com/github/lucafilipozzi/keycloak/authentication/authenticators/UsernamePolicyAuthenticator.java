@@ -1,4 +1,4 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;

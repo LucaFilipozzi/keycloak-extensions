@@ -1,6 +1,7 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.conditional;
 
+import com.google.auto.service.AutoService;
 import java.util.List;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.authenticators.conditional.ConditionalAuthenticatorFactory;
@@ -41,7 +42,6 @@ public class RequireImpersonationConditionalAuthenticatorFactory
     // intentionally empty
   }
 
-  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return CONFIG_PROPERTIES;
@@ -62,13 +62,11 @@ public class RequireImpersonationConditionalAuthenticatorFactory
     return PROVIDER_ID;
   }
 
-  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;
   }
 
-  @SuppressFBWarnings
   @Override
   public RequireImpersonationConditionalAuthenticator getSingleton() {
     return SINGLETON;

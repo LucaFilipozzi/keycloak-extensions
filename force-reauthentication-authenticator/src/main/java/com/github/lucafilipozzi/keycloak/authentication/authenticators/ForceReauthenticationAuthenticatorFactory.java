@@ -1,4 +1,4 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISABLED;
@@ -30,13 +30,11 @@ public class ForceReauthenticationAuthenticatorFactory implements AuthenticatorF
     // intentionally empty
   }
 
-  @SuppressFBWarnings
   @Override
   public Authenticator create(KeycloakSession session) {
     return SINGLETON;
   }
 
-  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return Collections.emptyList();
@@ -62,7 +60,6 @@ public class ForceReauthenticationAuthenticatorFactory implements AuthenticatorF
     return "cookie";
   }
 
-  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;

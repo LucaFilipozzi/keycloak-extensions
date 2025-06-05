@@ -1,4 +1,4 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.ALTERNATIVE;
@@ -6,7 +6,6 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.DISAB
 import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUIRED;
 
 import com.google.auto.service.AutoService;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import lombok.NonNull;
 import org.keycloak.Config.Scope;
@@ -45,13 +44,11 @@ public class UsernamePolicyAuthenticatorFactory implements AuthenticatorFactory 
     // intentionally empty
   }
 
-  @SuppressFBWarnings
   @Override
   public Authenticator create(@NonNull KeycloakSession session) {
     return SINGLETON;
   }
 
-  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return CONFIG_PROPERTIES;
@@ -77,7 +74,6 @@ public class UsernamePolicyAuthenticatorFactory implements AuthenticatorFactory 
     return "override";
   }
 
-  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;

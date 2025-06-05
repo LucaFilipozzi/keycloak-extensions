@@ -1,0 +1,8 @@
+# © 2025 Luca Filipozzi. Some rights reserved. See LICENSE
+
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+

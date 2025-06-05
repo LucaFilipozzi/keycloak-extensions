@@ -1,7 +1,8 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators.browser;
 
 import com.github.lucafilipozzi.keycloak.authentication.authenticators.RequireRoleConstants;
+import com.google.auto.service.AutoService;
 import java.util.List;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
@@ -26,13 +27,11 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
     // intentionally empty
   }
 
-  @SuppressFBWarnings
   @Override
   public Authenticator create(KeycloakSession session) {
     return SINGLETON;
   }
 
-  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return RequireRoleConstants.CONFIG_PROPERTIES;
@@ -58,7 +57,6 @@ public class RequireRoleAuthenticatorFactory implements AuthenticatorFactory {
     return null;
   }
 
-  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;
