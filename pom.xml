@@ -21,13 +21,8 @@
   <modules>
     <module>cache-required-actions-authenticator</module>
     <module>disable-users-password-policy-provider</module>
-    <module>custom-username-password-form</module>
-    <module>extended-cookie-authenticator</module>
-    <module>force-reauthentication-authenticator</module>
     <module>login-event-listener-provider</module>
     <module>md5crypt-password-hash-provider</module>
-    <module>record-last-login-authenticator</module>
-    <module>select-client-username-authenticator</module>
     <module>update-password-event-listener-provider</module>
     <module>username-policy-authenticator</module>
   </modules>
@@ -37,13 +32,14 @@
   </scm>
 
   <properties>
-    <revision>1.10.2</revision>
+    <revision>2.0.0-SNAPSHOT</revision>
     <github.account>LucaFilipozzi</github.account>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <keycloak.version>18.0.2</keycloak.version>
-    <java.version>11</java.version>
+    <keycloak.version>26.2.4</keycloak.version>
+    <java.version>17</java.version>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
     <topdir>${project.basedir}</topdir>
   </properties>
 
