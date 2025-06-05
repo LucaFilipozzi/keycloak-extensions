@@ -7,7 +7,6 @@ import static org.keycloak.models.AuthenticationExecutionModel.Requirement.REQUI
 import static org.keycloak.provider.ProviderConfigProperty.BOOLEAN_TYPE;
 
 import com.google.auto.service.AutoService;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import org.keycloak.Config.Scope;
 import org.keycloak.authentication.Authenticator;
@@ -47,13 +46,11 @@ public class CacheRequiredActionsAuthenticatorFactory implements AuthenticatorFa
     // intentionally empty
   }
 
-  @SuppressFBWarnings
   @Override
   public Authenticator create(KeycloakSession session) {
     return SINGLETON;
   }
 
-  @SuppressFBWarnings
   @Override
   public List<ProviderConfigProperty> getConfigProperties() {
     return CONFIG_PROPERTIES;
@@ -79,7 +76,6 @@ public class CacheRequiredActionsAuthenticatorFactory implements AuthenticatorFa
     return "override";
   }
 
-  @SuppressFBWarnings
   @Override
   public Requirement[] getRequirementChoices() {
     return REQUIREMENT_CHOICES;

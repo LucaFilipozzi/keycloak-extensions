@@ -1,13 +1,13 @@
 // © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.authentication.authenticators;
 
-import static javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
-import static javax.ws.rs.core.Response.Status.NOT_ACCEPTABLE;
+import static jakarta.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR;
+import static jakarta.ws.rs.core.Response.Status.NOT_ACCEPTABLE;
 import static org.keycloak.authentication.AuthenticationFlowError.INTERNAL_ERROR;
 import static org.keycloak.authentication.AuthenticationFlowError.INVALID_USER;
 import static org.keycloak.authentication.authenticators.broker.AbstractIdpAuthenticator.BROKERED_CONTEXT_NOTE;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import lombok.extern.jbosslog.JBossLog;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.Authenticator;

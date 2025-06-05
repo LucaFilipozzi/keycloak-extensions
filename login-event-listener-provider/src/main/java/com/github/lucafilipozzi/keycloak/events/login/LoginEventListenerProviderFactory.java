@@ -6,7 +6,9 @@ import static com.github.lucafilipozzi.keycloak.events.login.LoginEventListenerP
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Longs;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,7 +19,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.jbosslog.JBossLog;
-import org.apache.commons.lang.math.NumberUtils;
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.common.util.Time;
@@ -34,8 +35,10 @@ import org.keycloak.models.KeycloakSessionFactory;
 import org.keycloak.models.PasswordPolicy;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
+import org.keycloak.models.cache.UserCache;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.services.scheduled.ClusterAwareScheduledTaskRunner;
+import org.keycloak.storage.UserStorageUtil;
 import org.keycloak.timer.TimerProvider;
 
 @JBossLog
@@ -63,17 +66,22 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
   @Override
   public void init(Config.Scope config) {
     taskInterval = Duration.parse(config.get("taskInterval", TASK_INTERVAL)).toMillis();
-    warningIntervals = Stream.of(config.get("warningIntervals", WARNING_INTERVALS).split(",")).map(String::trim).map(Duration::parse).map(Duration::toMillis).collect(Collectors.toList());
+    warningIntervals = Stream.of(config.get("warningIntervals", WARNING_INTERVALS).split(",")).map(String::trim).map(Duration::parse).map(Duration::toMillis).toList();
   }
 
   @Override
-  public void postInit(KeycloakSessionFactory factory) {
-    factory.register(
+  public void postInit(KeycloakSessionFactory sessionFactory) {
+    sessionFactory.register(
         event -> {
           if (event instanceof PostMigrationEvent) {
             LOG.debug("registering warn-or-disable-users-task");
-            ClusterAwareScheduledTaskRunner clusterAwareScheduledTaskRunner = new ClusterAwareScheduledTaskRunner(factory, this::warnOrDisableUsersTask, taskInterval);
-            factory.create().getProvider(TimerProvider.class).schedule(clusterAwareScheduledTaskRunner, taskInterval, "warn-or-disable-users-task");
+            try (KeycloakSession session = sessionFactory.create()) {
+              TimerProvider timer = session.getProvider(TimerProvider.class);
+              if (timer != null) {
+                ClusterAwareScheduledTaskRunner clusterAwareScheduledTaskRunner = new ClusterAwareScheduledTaskRunner(sessionFactory, this::warnOrDisableUsersTask, taskInterval);
+                timer.schedule(clusterAwareScheduledTaskRunner, taskInterval, "warn-or-disable-users-task");
+              }
+            }
           }
         }
     );
@@ -115,18 +123,20 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
         .forEach(realm -> {
           LOG.infof("in realm '%s', warning or disabling users", realm.getName());
 
+          UserCache userCache = UserStorageUtil.userCache(session);
+
           long maxLastLoginAge = Duration.ofDays(((Number)realm.getPasswordPolicy().getPolicyConfig("disable-users-password-policy")).longValue()).toMillis();
 
           long maxPasswordAge = Duration.ofDays(realm.getPasswordPolicy().getDaysToExpirePassword()).toMillis();
 
           Consumer<UserModel> warnOrDisableUser = user -> {
-            long lastLoginTime = NumberUtils.toLong(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME));
+            long lastLoginTime = Optional.ofNullable(Longs.tryParse(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME))).orElse(0L);
             if ((currentTime - lastLoginTime) > maxLastLoginAge) {
               LOG.infof("in realm '%s', user '%s' disabled due to inactivity", realm.getName(), user.getUsername());
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
               user.removeAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
-              session.userCache().evict(realm, user);
+              userCache.evict(realm, user);
               return;
             }
 
@@ -135,7 +145,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               LOG.debugf("in realm '%s', user '%s' has no password", realm.getName(), user.getUsername());
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
               user.removeAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
-              session.userCache().evict(realm, user);
+              userCache.evict(realm, user);
               return;
             }
 
@@ -145,12 +155,12 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
               user.removeAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
-              session.userCache().evict(realm, user);
+              userCache.evict(realm, user);
               return;
             }
 
             long passwordExpiringDays = Duration.ofMillis(credentialTime + maxPasswordAge - currentTime).toDays();
-            long lastWarningTime = NumberUtils.toLong(user.getFirstAttribute(LAST_WARNING_ATTRIBUTE_NAME));
+            long lastWarningTime = Optional.ofNullable(Longs.tryParse(user.getFirstAttribute(LAST_WARNING_ATTRIBUTE_NAME))).orElse(0L);
             long nextWarningTime = Optional.ofNullable(
                 warningIntervals.stream().map(warningInterval -> warningInterval + maxPasswordAge + credentialTime).collect(Collectors.toCollection(TreeSet::new)).floor(currentTime)
             ).orElse(0L);
@@ -166,11 +176,11 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
             }
 
             user.setSingleAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME, Long.toString(Long.max(passwordExpiringDays, 0L)));
-            session.userCache().evict(realm, user);
+            userCache.evict(realm, user);
           };
 
           session.getContext().setRealm(realm);
-          session.userLocalStorage().getUsersStream(realm).filter(UserModel::isEnabled).forEach(warnOrDisableUser);
+          session.users().searchForUserStream(realm, Collections.emptyMap()).filter(UserModel::isEnabled).forEach(warnOrDisableUser);
           session.getContext().setRealm(null);
         });
   }

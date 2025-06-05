@@ -1,4 +1,4 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.events.password;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -11,6 +11,7 @@ import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.CredentialProvider;
 import org.keycloak.credential.PasswordCredentialProvider;
 import org.keycloak.credential.PasswordCredentialProviderFactory;
+import org.keycloak.events.Details;
 import org.keycloak.events.Event;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventType;
@@ -34,7 +35,7 @@ public class UpdatePasswordEventListenerProvider implements EventListenerProvide
 
   @Override
   public void onEvent(Event event) {
-    if (event.getType() == EventType.UPDATE_PASSWORD) {
+    if (EventType.UPDATE_CREDENTIAL.equals(event.getType()) && PasswordCredentialModel.TYPE.equals(event.getDetails().get(Details.CREDENTIAL_TYPE))) {
       RealmModel realm = session.realms().getRealm(event.getRealmId());
       UserModel user = session.users().getUserById(realm, event.getUserId());
       onEvent(realm, user);

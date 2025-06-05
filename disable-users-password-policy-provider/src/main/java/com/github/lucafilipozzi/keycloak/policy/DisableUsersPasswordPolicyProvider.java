@@ -1,13 +1,10 @@
-// © 2024 Luca Filipozzi. Some rights reserved. See LICENSE.
+// © 2025 Luca Filipozzi. Some rights reserved. See LICENSE.
 package com.github.lucafilipozzi.keycloak.policy;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.policy.PasswordPolicyConfigException;
 import org.keycloak.policy.PasswordPolicyProvider;
 import org.keycloak.policy.PolicyError;
 
@@ -28,15 +25,7 @@ public class DisableUsersPasswordPolicyProvider implements PasswordPolicyProvide
 
   @Override
   public Object parseConfig(String value) {
-    if (StringUtils.isEmpty(value)) {
-      throw new PasswordPolicyConfigException("value must not be empty");
-    }
-
-    if (!StringUtils.isNumeric(value)) {
-      throw new PasswordPolicyConfigException("value must be a number");
-    }
-
-    return NumberUtils.toInt(value);
+    return parseInteger(value, 0);
   }
 
   @Override

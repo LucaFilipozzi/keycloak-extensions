@@ -20,7 +20,7 @@ public class LoginEventListenerProvider extends JBossLoggingEventListenerProvide
   public static final String LAST_LOGIN_ATTRIBUTE_NAME = "last-login";
 
   public LoginEventListenerProvider(KeycloakSession session, Logger logger) {
-    super(session, logger, Logger.Level.WARN, Logger.Level.WARN);
+    super(session, logger, Logger.Level.WARN, Logger.Level.WARN, null, false, false);
     this.session = session;
   }
 
