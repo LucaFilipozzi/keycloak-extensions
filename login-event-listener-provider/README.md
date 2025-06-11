@@ -19,23 +19,12 @@ This event listener provider performs three functions:
 
 ## usage
 
-1. copy the JAR to the deployment directory
-2. optionally modify `standalone.xml`
-
-   ```xml
-   <subsystem xmlns="urn:jboss:domain:keycloak-server:1.1">
-       <spi name="eventsListener">
-           <provider name="login-event-listener" enabled="true">
-               <properties>
-                   <!-- positive ISO8601 duration: P1D PT30S-->
-                   <property name="taskInterval" value="PT30S"/>
-                   <!-- negative ISO8601 durations, comma separated: -P28D, -P14D, -P7D, -P1D -->
-                   <property name="warningIntervals" value="-P28D, -P14D, -P7D, -P1D"/>
-               </properties>
-           </provider>
-       </spi>
-   </subsystem>
-   ```
+1. copy the JAR to the providers directory and rebuild the optimized jar
+2. modify keycloak.conf
+   ```conf
+   spi-events-listener-login-event-listener-enabled=true
+   spi-events-listener-login-event-listener-task-interval=PT30S
+   spi-events-listener-login-event-listener-warning-intervals=-P28D, -P14D, -P7D, -P1D
 3. add a `last-login` attribute to the realm's declarative user profile with
    - permissions
      - user can view set false

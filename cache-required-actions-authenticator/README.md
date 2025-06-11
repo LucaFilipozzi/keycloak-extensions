@@ -18,7 +18,8 @@ also to the _Browser_ flow), it is possible
 
 ## usage
 
-1. copy the JAR to the deployment directory
+1. copy the JAR to the providers directory and rebuild the optimized jar
+2. define a `required-actions` multi-valued attribute
 2. add this authenticator to
    - _Direct Grant_ flow with _restore_ set to false (default)
    - _Browser_ flow, with _restore_ set to true

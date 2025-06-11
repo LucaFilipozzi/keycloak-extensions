@@ -8,9 +8,9 @@ pattern (regular expression).
 
 ## usage
 
-1. copy the JAR to the deployment directory
+1. copy the JAR to the providers directory and rebuild the optimized jar
 2. add this authenticator to a _First Login_ flow and define the regex
-3. use a identity provider username mapper to define which claim /
+3. use an identity provider username mapper to define which claim /
    assertion should be considered the username
 
 ---

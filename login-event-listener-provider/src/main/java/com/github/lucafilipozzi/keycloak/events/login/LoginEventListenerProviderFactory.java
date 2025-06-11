@@ -130,8 +130,8 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
           long maxPasswordAge = Duration.ofDays(realm.getPasswordPolicy().getDaysToExpirePassword()).toMillis();
 
           Consumer<UserModel> warnOrDisableUser = user -> {
-            long lastLoginTime = Optional.ofNullable(Longs.tryParse(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME))).orElse(0L);
-            if ((currentTime - lastLoginTime) > maxLastLoginAge) {
+            long lastLoginTime = Optional.ofNullable(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME)).filter(Objects::nonNull).map(Longs::tryParse).orElse(0L);
+            if (lastLoginTime > 0L && (currentTime - lastLoginTime) > maxLastLoginAge) {
               LOG.infof("in realm '%s', user '%s' disabled due to inactivity", realm.getName(), user.getUsername());
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
@@ -160,7 +160,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
             }
 
             long passwordExpiringDays = Duration.ofMillis(credentialTime + maxPasswordAge - currentTime).toDays();
-            long lastWarningTime = Optional.ofNullable(Longs.tryParse(user.getFirstAttribute(LAST_WARNING_ATTRIBUTE_NAME))).orElse(0L);
+            long lastWarningTime = Optional.ofNullable(user.getFirstAttribute(LAST_WARNING_ATTRIBUTE_NAME)).filter(Objects::nonNull).map(Longs::tryParse).orElse(0L);
             long nextWarningTime = Optional.ofNullable(
                 warningIntervals.stream().map(warningInterval -> warningInterval + maxPasswordAge + credentialTime).collect(Collectors.toCollection(TreeSet::new)).floor(currentTime)
             ).orElse(0L);
