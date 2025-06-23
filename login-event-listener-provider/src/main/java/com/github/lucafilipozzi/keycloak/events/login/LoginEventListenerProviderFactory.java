@@ -7,12 +7,15 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Longs;
+import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -26,8 +29,7 @@ import org.keycloak.credential.CredentialModel;
 import org.keycloak.credential.CredentialProvider;
 import org.keycloak.credential.PasswordCredentialProvider;
 import org.keycloak.credential.PasswordCredentialProviderFactory;
-import org.keycloak.email.EmailException;
-import org.keycloak.email.EmailTemplateProvider;
+import org.keycloak.email.EmailSenderProvider;
 import org.keycloak.events.EventListenerProvider;
 import org.keycloak.events.EventListenerProviderFactory;
 import org.keycloak.models.KeycloakSession;
@@ -39,6 +41,9 @@ import org.keycloak.models.cache.UserCache;
 import org.keycloak.models.utils.PostMigrationEvent;
 import org.keycloak.services.scheduled.ClusterAwareScheduledTaskRunner;
 import org.keycloak.storage.UserStorageUtil;
+import org.keycloak.theme.Theme;
+import org.keycloak.theme.beans.MessageFormatterMethod;
+import org.keycloak.theme.freemarker.FreeMarkerProvider;
 import org.keycloak.timer.TimerProvider;
 
 @JBossLog
@@ -102,7 +107,9 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
     PasswordCredentialProvider passwordCredentialProvider = (PasswordCredentialProvider) session.getProvider(CredentialProvider.class, PasswordCredentialProviderFactory.PROVIDER_ID);
 
-    EmailTemplateProvider emailTemplateProvider = session.getProvider(EmailTemplateProvider.class);
+    EmailSenderProvider emailSenderProvider = session.getProvider(EmailSenderProvider.class);
+
+    FreeMarkerProvider freeMarkerProvider = session.getProvider(FreeMarkerProvider.class);
 
     Predicate<RealmModel> eventListenerEnabled = realm ->
         realm.getEventsListenersStream().anyMatch(eventListenerId -> eventListenerId.equals(PROVIDER_ID));
@@ -130,7 +137,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
           long maxPasswordAge = Duration.ofDays(realm.getPasswordPolicy().getDaysToExpirePassword()).toMillis();
 
           Consumer<UserModel> warnOrDisableUser = user -> {
-            long lastLoginTime = Optional.ofNullable(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME)).filter(Objects::nonNull).map(Longs::tryParse).orElse(0L);
+            long lastLoginTime = Optional.ofNullable(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME)).map(Longs::tryParse).orElse(0L);
             if (lastLoginTime > 0L && (currentTime - lastLoginTime) > maxLastLoginAge) {
               LOG.infof("in realm '%s', user '%s' disabled due to inactivity", realm.getName(), user.getUsername());
               user.setEnabled(false);
@@ -142,7 +149,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
             CredentialModel credential = passwordCredentialProvider.getPassword(realm, user);
             if (Objects.isNull(credential)) {
-              LOG.debugf("in realm '%s', user '%s' has no password", realm.getName(), user.getUsername());
+              LOG.infof("in realm '%s', user '%s' has no password", realm.getName(), user.getUsername());
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
               user.removeAttribute(DAYS_UNTIL_PASSWORD_EXPIRY_ATTRIBUTE_NAME);
               userCache.evict(realm, user);
@@ -160,18 +167,28 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
             }
 
             long passwordExpiringDays = Duration.ofMillis(credentialTime + maxPasswordAge - currentTime).toDays();
-            long lastWarningTime = Optional.ofNullable(user.getFirstAttribute(LAST_WARNING_ATTRIBUTE_NAME)).filter(Objects::nonNull).map(Longs::tryParse).orElse(0L);
+            long lastWarningTime = Optional.ofNullable(user.getFirstAttribute(LAST_WARNING_ATTRIBUTE_NAME)).map(Longs::tryParse).orElse(0L);
             long nextWarningTime = Optional.ofNullable(
                 warningIntervals.stream().map(warningInterval -> warningInterval + maxPasswordAge + credentialTime).collect(Collectors.toCollection(TreeSet::new)).floor(currentTime)
             ).orElse(0L);
             if (lastWarningTime < nextWarningTime) {
               try {
-                Map<String, Object> attributes = Maps.newHashMap(ImmutableMap.of("realm", realm, "user", user, "passwordExpiringDays", Long.toString(passwordExpiringDays)));
-                emailTemplateProvider.setRealm(realm).setUser(user).send("passwordExpiringSubject", "password-expiring.ftl", attributes);
+                Theme theme = session.theme().getTheme(Theme.Type.EMAIL);
+                Locale locale = Locale.ENGLISH;
+                Properties messages = theme.getEnhancedMessages(realm, locale);
+                Map<String, Object> attributes = Maps.newHashMap(
+                    ImmutableMap.of(
+                        "locale", locale, "ltr", true, "msg", new MessageFormatterMethod(locale, messages),
+                        "properties", theme.getProperties(), "realm", realm, "user", user,
+                        "passwordExpiringDays", Long.toString(passwordExpiringDays)));
+                String subject = new MessageFormat(messages.getProperty("passwordExpiringSubject", "passwordExpiringSubject"), locale).format(Collections.emptyList().toArray());
+                String textBody = freeMarkerProvider.processTemplate(attributes, "text/password-expiring.ftl", theme);
+                String htmlBody = freeMarkerProvider.processTemplate(attributes, "html/password-expiring.ftl", theme);
+                emailSenderProvider.send(realm.getSmtpConfig(), user, subject, textBody, htmlBody);
                 user.setSingleAttribute(LAST_WARNING_ATTRIBUTE_NAME, Long.toString(currentTime));
                 LOG.infof("in realm '%s', user '%s' warned that password expires in %d days", realm.getName(), user.getUsername(), passwordExpiringDays);
-              } catch (EmailException e) {
-                LOG.errorf("in realm '%s', user '%s' not warned that password expires in %d days", realm.getName(), user.getUsername(), passwordExpiringDays, e);
+              } catch (Exception e) {
+                LOG.errorf(e, "in realm '%s', user '%s' not warned that password expires in %d days", realm.getName(), user.getUsername(), passwordExpiringDays);
               }
             }
 
