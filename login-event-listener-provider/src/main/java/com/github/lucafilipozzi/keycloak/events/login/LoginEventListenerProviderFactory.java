@@ -121,7 +121,7 @@ public class LoginEventListenerProviderFactory implements EventListenerProviderF
 
           Consumer<UserModel> warnOrDisableUser = user -> {
             long lastLoginTime = NumberUtils.toLong(user.getFirstAttribute(LAST_LOGIN_ATTRIBUTE_NAME));
-            if ((currentTime - lastLoginTime) > maxLastLoginAge) {
+            if (lastLoginTime > 0L && (currentTime - lastLoginTime) > maxLastLoginAge) {
               LOG.infof("in realm '%s', user '%s' disabled due to inactivity", realm.getName(), user.getUsername());
               user.setEnabled(false);
               user.removeAttribute(LAST_WARNING_ATTRIBUTE_NAME);
