@@ -19,7 +19,7 @@
   </licenses>
 
   <modules>
-    <module>admin-resources-request-filter</module>
+    <module>restricted-admin-resources-request-filter</module>
     <module>cache-required-actions-authenticator</module>
     <module>disable-users-password-policy-provider</module>
     <module>login-event-listener-provider</module>

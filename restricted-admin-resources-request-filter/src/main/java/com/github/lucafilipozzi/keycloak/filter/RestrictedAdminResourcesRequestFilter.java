@@ -38,18 +38,18 @@ import org.keycloak.services.resources.admin.UsersResource;
 @Provider
 @Priority(Priorities.AUTHORIZATION)
 @JBossLog
-public class AdminResourcesRequestFilter implements ContainerRequestFilter {
-  // users having this realm-management role assigned can only manage the credentials of other users
-  private final static String MANAGE_CREDENTIALS_ONLY = "agency-manage-passwords";
+public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFilter {
+  // users having this realm-management role assigned can only manage the profiles and credentials of other users
+  private final static String MANAGE_PROFILES = "manage-profiles";
 
-  // users having this realm-management role assigned can only manage the profiles (and credentials) of other users
-  private final static String MANAGE_PROFILE_ONLY = "manage-users"; // FIXME use: "agency-manage-users"
+  // users having this realm-management role assigned can only manage the credentials of other users
+  private final static String MANAGE_CREDENTIALS = "manage-credentials";
 
   // key is roleName, resourceClassName, resourceMethodName; value is boolean where false means deny
   private final MultiKeyMap<String, Boolean> permissions;
 
   // be efficient ... in filter(), below, only handle roles that have been added to the permission map
-  private final Set<String> applicableRoleNames;
+  private final Set<String> actionableRoleNames;
 
   @Context
   private KeycloakSession session;
@@ -60,7 +60,7 @@ public class AdminResourcesRequestFilter implements ContainerRequestFilter {
   @Context
   private UriInfo uriInfo;
 
-  public AdminResourcesRequestFilter() {
+  public RestrictedAdminResourcesRequestFilter() {
     // note to future self - we're using getDeclaredMethod() because:
     // (1) we want the filter() method to return quickly; it already has resourceInfo populated
     //     with resourceClass and resourceMethod, so let's use those directly rather than trying
@@ -68,8 +68,8 @@ public class AdminResourcesRequestFilter implements ContainerRequestFilter {
     // (2) our IDE (IntelliJ IDEA) provides excellent support for populating the method name and
     //     method parameters for getDeclaredMethod, leaving no opportunity for typos
     //
-    // but the use of getDeclaredMethod() makes this filter very sensitive to refactoring of the
-    // following keycloak classes:
+    // but the use of getDeclaredMethod() makes our code sensitive to refactoring of the following
+    // keycloak classes:
     //   * org.keycloak.services.resources.admin.ClientRoleMappingsResource
     //   * org.keycloak.services.resources.admin.RealmAdminResource
     //   * org.keycloak.services.resources.admin.RoleMapperResource
@@ -78,8 +78,6 @@ public class AdminResourcesRequestFilter implements ContainerRequestFilter {
     //
     // so let's catch any NoSuchMethodExceptions thrown during construction and throw an exception
     // that will prevent keycloak from starting ... this should get caught during upgrade testing
-    //
-    // remember, we prefer compile-time errors over startup-time errors over run-time errors
 
     try {
 
@@ -92,13 +90,17 @@ public class AdminResourcesRequestFilter implements ContainerRequestFilter {
       Method addUser = UsersResource.class.getDeclaredMethod("createUser", UserRepresentation.class);
       Method delUser = UserResource.class.getDeclaredMethod("deleteUser");
       Method modUser = UserResource.class.getDeclaredMethod("updateUser", UserRepresentation.class);
-      denyAccess(ImmutableSet.of(MANAGE_CREDENTIALS_ONLY),
+      denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
+          ImmutableSet.of(getUsers, getUser));
+      denyAccess(ImmutableSet.of(MANAGE_CREDENTIALS),
           ImmutableSet.of(addUser, delUser, modUser));
 
       // credentials
       Method getCredentials = UserResource.class.getDeclaredMethod("credentials");
       Method addCredential = UserResource.class.getDeclaredMethod("resetPassword", CredentialRepresentation.class);
       Method delCredential = UserResource.class.getDeclaredMethod("removeCredential", String.class);
+      denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
+          ImmutableSet.of(getCredentials, addCredential, delCredential));
 
       // role mappings
       Method getRoleMappings = RoleMapperResource.class.getDeclaredMethod("getRoleMappings");
@@ -106,20 +108,20 @@ public class AdminResourcesRequestFilter implements ContainerRequestFilter {
       Method delRealmRoleMappings = RoleMapperResource.class.getDeclaredMethod("deleteRealmRoleMappings", List.class);
       Method addClientRoleMapping = ClientRoleMappingsResource.class.getDeclaredMethod("addClientRoleMapping", List.class);
       Method delClientRoleMapping = ClientRoleMappingsResource.class.getDeclaredMethod("deleteClientRoleMapping", List.class);
-      denyAccess(ImmutableSet.of(MANAGE_PROFILE_ONLY, MANAGE_CREDENTIALS_ONLY),
+      denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getRoleMappings, addRealmRoleMappings, delRealmRoleMappings, addClientRoleMapping, delClientRoleMapping));
 
       // group memberships
       Method getGroupMemberships = UserResource.class.getDeclaredMethod("groupMembership", String.class, Integer.class, Integer.class, boolean.class);
       Method addGroupMembership = UserResource.class.getDeclaredMethod("joinGroup", String.class);
       Method delGroupMembership = UserResource.class.getDeclaredMethod("removeMembership", String.class);
-      denyAccess(ImmutableSet.of(MANAGE_PROFILE_ONLY, MANAGE_CREDENTIALS_ONLY),
+      denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getGroupMemberships, addGroupMembership, delGroupMembership));
 
       // consents
       Method getConsents = UserResource.class.getDeclaredMethod("getConsents");
       Method delConsent = UserResource.class.getDeclaredMethod("revokeConsent", String.class);
-      denyAccess(ImmutableSet.of(MANAGE_PROFILE_ONLY, MANAGE_CREDENTIALS_ONLY),
+      denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getConsents, delConsent));
 
       // federated identities
@@ -127,17 +129,17 @@ public class AdminResourcesRequestFilter implements ContainerRequestFilter {
       Method getFederatedIdentity = UserResource.class.getDeclaredMethod("getFederatedIdentity");
       Method addFederatedIdentity = UserResource.class.getDeclaredMethod("addFederatedIdentity", String.class, FederatedIdentityRepresentation.class);
       Method delFederatedIdentity = UserResource.class.getDeclaredMethod("removeFederatedIdentity", String.class);
-      denyAccess(ImmutableSet.of(MANAGE_PROFILE_ONLY, MANAGE_CREDENTIALS_ONLY),
+      denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getFederatedIdentities, getFederatedIdentity, addFederatedIdentity, delFederatedIdentity));
 
       // sessions
       Method getSessions = UserResource.class.getDeclaredMethod("getSessions");
       Method delSessions = UserResource.class.getDeclaredMethod("logout");
       Method delSession = RealmAdminResource.class.getDeclaredMethod("deleteSession", String.class, boolean.class);
-      denyAccess(ImmutableSet.of(MANAGE_PROFILE_ONLY, MANAGE_CREDENTIALS_ONLY),
+      denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getSessions, delSessions, delSession));
 
-      applicableRoleNames = permissions.keySet().stream().map(multiKey -> multiKey.getKey(0)).collect(Collectors.toSet());
+      actionableRoleNames = permissions.keySet().stream().map(multiKey -> multiKey.getKey(0)).collect(Collectors.toSet());
 
     } catch (NoSuchMethodException e) {
 
@@ -177,15 +179,14 @@ public class AdminResourcesRequestFilter implements ContainerRequestFilter {
     boolean permitted = user
         .getClientRoleMappingsStream(realmManagementClient)
         .map(RoleModel::getName)
-        .filter(applicableRoleNames::contains) // note that allMatch() of an empty stream is true, which is desired behaviour (default allow)
+        .filter(actionableRoleNames::contains) // note that allMatch() of an empty stream is true, which is desired behaviour (default allow)
         .allMatch(roleName -> Optional.ofNullable(permissions.get(roleName, resourceClassName, resourceMethodName)).orElse(true));
 
     if (permitted) {
-      // TODO change to debugf
-      LOG.infof("access granted: resourceClassName=%s resourceMethodName=%s realm=%s user=%s",
+      LOG.tracef("access granted: resourceClassName=%s resourceMethodName=%s realm=%s user=%s",
           resourceClassName, resourceMethodName, realm.getName(), user.getUsername());
     } else {
-      LOG.infof("access denied: resourceClassName=%s resourceMethodName=%s realm=%s user=%s",
+      LOG.tracef("access denied: resourceClassName=%s resourceMethodName=%s realm=%s user=%s",
           resourceClassName, resourceMethodName, realm.getName(), user.getUsername());
       requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
     }

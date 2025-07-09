@@ -11,7 +11,7 @@
     <version>${revision}</version>
   </parent>
 
-  <artifactId>admin-resources-request-filter</artifactId>
+  <artifactId>restricted-admin-resources-request-filter</artifactId>
   <packaging>jar</packaging>
 
   <licenses>
