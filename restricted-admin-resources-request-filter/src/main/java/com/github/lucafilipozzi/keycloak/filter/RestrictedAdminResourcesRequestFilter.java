@@ -14,7 +14,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.ext.Provider;
 import java.lang.reflect.Method;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,9 +26,6 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
-import org.keycloak.representations.idm.CredentialRepresentation;
-import org.keycloak.representations.idm.FederatedIdentityRepresentation;
-import org.keycloak.representations.idm.UserRepresentation;
 import org.keycloak.services.resources.admin.ClientRoleMappingsResource;
 import org.keycloak.services.resources.admin.RealmAdminResource;
 import org.keycloak.services.resources.admin.RoleMapperResource;
@@ -61,88 +58,74 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
   private UriInfo uriInfo;
 
   public RestrictedAdminResourcesRequestFilter() {
-    // note to future self - we're using getDeclaredMethod() because:
-    // (1) we want the filter() method to return quickly; it already has resourceInfo populated
-    //     with resourceClass and resourceMethod, so let's use those directly rather than trying
-    //     to parse uriInfo path ourselves or using an external dependency like casbin
-    // (2) our IDE (IntelliJ IDEA) provides excellent support for populating the method name and
-    //     method parameters for getDeclaredMethod, leaving no opportunity for typos
-    //
-    // but the use of getDeclaredMethod() makes our code sensitive to refactoring of the following
-    // keycloak classes:
-    //   * org.keycloak.services.resources.admin.ClientRoleMappingsResource
-    //   * org.keycloak.services.resources.admin.RealmAdminResource
-    //   * org.keycloak.services.resources.admin.RoleMapperResource
-    //   * org.keycloak.services.resources.admin.UserResource
-    //   * org.keycloak.services.resources.admin.UsersResource
-    //
-    // so let's catch any NoSuchMethodExceptions thrown during construction and throw an exception
-    // that will prevent keycloak from starting ... this should get caught during upgrade testing
-
     try {
 
       permissions = new MultiKeyMap<>();
 
       // users
-      Method getUsers = UsersResource.class.getDeclaredMethod("getUsers", String.class, String.class, String.class, String.class, String.class,
-          Boolean.class, String.class, String.class, Integer.class, Integer.class, Boolean.class, Boolean.class, Boolean.class, String.class);
-      Method getUser = UserResource.class.getDeclaredMethod("getUser", boolean.class);
-      Method addUser = UsersResource.class.getDeclaredMethod("createUser", UserRepresentation.class);
-      Method delUser = UserResource.class.getDeclaredMethod("deleteUser");
-      Method modUser = UserResource.class.getDeclaredMethod("updateUser", UserRepresentation.class);
+      Method getUsers = findMethod(UsersResource.class,"getUsers");
+      Method getUser = findMethod(UserResource.class,"getUser");
+      Method addUser = findMethod(UsersResource.class, "createUser");
+      Method delUser = findMethod(UserResource.class, "deleteUser");
+      Method modUser = findMethod(UserResource.class, "updateUser");
       denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
           ImmutableSet.of(getUsers, getUser));
       denyAccess(ImmutableSet.of(MANAGE_CREDENTIALS),
           ImmutableSet.of(addUser, delUser, modUser));
 
       // credentials
-      Method getCredentials = UserResource.class.getDeclaredMethod("credentials");
-      Method addCredential = UserResource.class.getDeclaredMethod("resetPassword", CredentialRepresentation.class);
-      Method delCredential = UserResource.class.getDeclaredMethod("removeCredential", String.class);
+      Method getCredentials = findMethod(UserResource.class, "credentials");
+      Method addCredential = findMethod(UserResource.class, "resetPassword");
+      Method delCredential = findMethod(UserResource.class, "removeCredential");
+      Method modCredential = findMethod(UserResource.class, "setCredentialUserLabel");
       denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
-          ImmutableSet.of(getCredentials, addCredential, delCredential));
+          ImmutableSet.of(getCredentials, addCredential, delCredential, modCredential));
 
       // role mappings
-      Method getRoleMappings = RoleMapperResource.class.getDeclaredMethod("getRoleMappings");
-      Method addRealmRoleMappings = RoleMapperResource.class.getDeclaredMethod("addRealmRoleMappings", List.class);
-      Method delRealmRoleMappings = RoleMapperResource.class.getDeclaredMethod("deleteRealmRoleMappings", List.class);
-      Method addClientRoleMapping = ClientRoleMappingsResource.class.getDeclaredMethod("addClientRoleMapping", List.class);
-      Method delClientRoleMapping = ClientRoleMappingsResource.class.getDeclaredMethod("deleteClientRoleMapping", List.class);
+      Method getRoleMappings = findMethod(RoleMapperResource.class, "getRoleMappings");
+      Method addRealmRoleMappings = findMethod(RoleMapperResource.class, "addRealmRoleMappings");
+      Method delRealmRoleMappings = findMethod(RoleMapperResource.class, "deleteRealmRoleMappings");
+      Method addClientRoleMappings = findMethod(ClientRoleMappingsResource.class, "addClientRoleMapping");
+      Method delClientRoleMappings = findMethod(ClientRoleMappingsResource.class, "deleteClientRoleMapping");
       denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
-          ImmutableSet.of(getRoleMappings, addRealmRoleMappings, delRealmRoleMappings, addClientRoleMapping, delClientRoleMapping));
+          ImmutableSet.of(getRoleMappings, addRealmRoleMappings, delRealmRoleMappings, addClientRoleMappings, delClientRoleMappings));
 
       // group memberships
-      Method getGroupMemberships = UserResource.class.getDeclaredMethod("groupMembership", String.class, Integer.class, Integer.class, boolean.class);
-      Method addGroupMembership = UserResource.class.getDeclaredMethod("joinGroup", String.class);
-      Method delGroupMembership = UserResource.class.getDeclaredMethod("removeMembership", String.class);
+      Method getGroupMemberships = findMethod(UserResource.class, "groupMembership");
+      Method addGroupMembership = findMethod(UserResource.class, "joinGroup");
+      Method delGroupMembership = findMethod(UserResource.class, "removeMembership");
       denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getGroupMemberships, addGroupMembership, delGroupMembership));
 
       // consents
-      Method getConsents = UserResource.class.getDeclaredMethod("getConsents");
-      Method delConsent = UserResource.class.getDeclaredMethod("revokeConsent", String.class);
+      Method getConsents = findMethod(UserResource.class, "getConsents");
+      Method delConsent = findMethod(UserResource.class, "revokeConsent");
       denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getConsents, delConsent));
 
       // federated identities
-      Method getFederatedIdentities = UserResource.class.getDeclaredMethod("getFederatedIdentities", UserModel.class);
-      Method getFederatedIdentity = UserResource.class.getDeclaredMethod("getFederatedIdentity");
-      Method addFederatedIdentity = UserResource.class.getDeclaredMethod("addFederatedIdentity", String.class, FederatedIdentityRepresentation.class);
-      Method delFederatedIdentity = UserResource.class.getDeclaredMethod("removeFederatedIdentity", String.class);
+      Method getFederatedIdentities = findMethod(UserResource.class, "getFederatedIdentities");
+      Method getFederatedIdentity = findMethod(UserResource.class, "getFederatedIdentity");
+      Method addFederatedIdentity = findMethod(UserResource.class, "addFederatedIdentity");
+      Method delFederatedIdentity = findMethod(UserResource.class, "removeFederatedIdentity");
       denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
           ImmutableSet.of(getFederatedIdentities, getFederatedIdentity, addFederatedIdentity, delFederatedIdentity));
 
       // sessions
-      Method getSessions = UserResource.class.getDeclaredMethod("getSessions");
-      Method delSessions = UserResource.class.getDeclaredMethod("logout");
-      Method delSession = RealmAdminResource.class.getDeclaredMethod("deleteSession", String.class, boolean.class);
+      Method getOnlineSessions = findMethod(UserResource.class, "getSessions");
+      Method getOfflineSessions = findMethod(UserResource.class, "getOfflineSessions");
+      Method delOnlineSessions = findMethod(UserResource.class, "logout");
+      Method deleteOnlineOrOfflineSession = findMethod(RealmAdminResource.class, "deleteSession");
       denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
-          ImmutableSet.of(getSessions, delSessions, delSession));
+          ImmutableSet.of(getOnlineSessions, getOfflineSessions, delOnlineSessions, deleteOnlineOrOfflineSession));
 
       actionableRoleNames = permissions.keySet().stream().map(multiKey -> multiKey.getKey(0)).collect(Collectors.toSet());
 
     } catch (NoSuchMethodException e) {
 
+      // since reflection is sensitive to future refactoring, let's catch any
+      // NoSuchMethodExceptions thrown during construction and throw an exception
+      // that will prevent keycloak from starting (ComponentValidationException)
       throw new ComponentValidationException("AdminResourceRequestFilter could not be initialized");
 
     }
@@ -151,7 +134,7 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
   @Override
   public void filter(ContainerRequestContext requestContext) {
     if (!uriInfo.getPath().startsWith("/admin/realms/")) {
-      return;
+      return; // path-based guard
     }
 
     UserModel user = session.getContext().getUser();
@@ -172,7 +155,9 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       return;
     }
 
-    // using injected resourceInfo to get the resourceClassName and resourceMethodName efficiently
+    // using resourceClassName and resourceMethodName from injected resourceInfo
+    // is more efficient than parsing uriInfo path ourselves and much simpler than
+    // adding an external authorization dependency such as https://casbin.org/
     String resourceClassName = resourceInfo.getResourceClass().getName();
     String resourceMethodName = resourceInfo.getResourceMethod().getName();
 
@@ -197,12 +182,14 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       String roleName = (String) combination.get(0);
       Method resourceMethod = (Method) combination.get(1);
       Class<?> resourceClass = resourceMethod.getDeclaringClass();
-      // add MultiKey <roleName, resourceClassName, resourceMethodName> with value set to false for
-      // operations to be DENIED to users having the specified roleName assigned; unless explicitly
-      // added, operations are DEFAULT ALLOWED: see Optional.ofNullable().orElse(true) in filter()
       permissions.put(roleName, resourceClass.getName(), resourceMethod.getName(), false);
-      // note to future self - using resourceMethod.getDeclaringClass().getName() and resourceMethod.getName()
-      // for obtaining the respective names to add to the permissions map, thereby leaving no opportunity for typos
     });
+  }
+
+  private Method findMethod(Class<?> clazz, String methodName) throws NoSuchMethodException {
+    return Arrays.stream(clazz.getDeclaredMethods())
+        .filter(method -> method.getName().equals(methodName))
+        .findFirst()
+        .orElseThrow(NoSuchMethodException::new);
   }
 }

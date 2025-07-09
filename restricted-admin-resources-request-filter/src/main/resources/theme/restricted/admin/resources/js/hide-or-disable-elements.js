@@ -53,12 +53,6 @@ function modifyElements() {
         modifyElementBySelector('[data-testid="user-consents-tab"]', {hide: true, disable: true});
         modifyElementBySelector('[data-testid="identity-provider-links-tab"]', {hide: true, disable: true});
         modifyElementBySelector('[data-testid="user-sessions-tab"]', {hide: true, disable: true});
-        modifyElementByLabelFor('kc-id', {disable: true});
-        modifyElementByLabelFor('kc-created-at', {hide: true});
-        modifyElementByLabelFor('required-actions', {hide: true, disable: true});
-        modifyElementByLabelFor('last-login', {hide: true, disable: true});
-        modifyElementByLabelFor('last-warning', {hide: true, disable: true});
-        modifyElementByLabelFor('days-until-password-expiry', {hide: true, disable: true});
       }
       if (realmAccess.includes('manage-credentials')) {
         modifyElementBySelector('[data-testid="add-user"]', {hide: true, disable: true});
@@ -73,7 +67,7 @@ function modifyElements() {
         modifyElementByLabelFor('email', {disable: true});
         modifyElementByLabelFor('firstName', {disable: true});
         modifyElementByLabelFor('lastName', {disable: true});
-        modifyElementByLabelFor('password-sync', {hide: true, disable: true});
+        modifyElementByLabelFor('password-sync', {disable: true});
       }
     }
   } catch (error) {

@@ -37,19 +37,19 @@ The new roles are `realm-management.manage-profiles`
 and `realm-management.manage-passwords`. They differ
 from `realm-management.manage-users` as follows:
 
-| capability          | manage-users | manage-profiles | manage-credentials |
-|---------------------|:------------:|:---------------:|:------------------:|
-| query users         |     yes      |       yes       |        yes         |
-| view user           |     yes      |       yes       |        yes         |
-| enable/disable user |     yes      |       yes       |        yes         |
-| manage credentials  |     yes      |       yes       |        yes         |
-| manage attributes   |     yes      |       yes       |         no         |
-| create/delete user  |     yes      |       yes       |         no         |
-| manage consents     |     yes      |       no        |         no         |
-| manage IdP links    |     yes      |       no        |         no         |
-| manage sessions     |     yes      |       no        |         no         |
-| manage roles        |     yes      |       no        |         no         |
-| manage groups†      |     yes      |       no        |         no         |
+| capability                | manage-users | manage-profiles | manage-credentials |
+|---------------------------|:------------:|:---------------:|:------------------:|
+| query users               |     yes      |       yes       |        yes         |
+| view user                 |     yes      |       yes       |        yes         |
+| manage credentials        |     yes      |       yes       |        yes         |
+| create/delete user        |     yes      |       yes       |         no         |
+| enable/disable user       |     yes      |       yes       |         no         |
+| manage attributes         |     yes      |       yes       |         no         |
+| manage consents           |     yes      |       no        |         no         |
+| manage id. provider links |     yes      |       no        |         no         |
+| manage sessions           |     yes      |       no        |         no         |
+| manage roles assignments  |     yes      |       no        |         no         |
+| manage group memberships† |     yes      |       no        |         no         |
 
 † Please see note 1.
 
@@ -59,7 +59,7 @@ from `realm-management.manage-users` as follows:
 2. set admin theme to `restricted`
 3. modify `realm-management.manage-users`:
     - remove associated role `realm-management.query-groups`
-4. create two roles in client `realm-management`:
+4. create two new roles in client `realm-management`:
    - `manage-credentials` with
       - description: manage credentials only
       - associated roles:
@@ -76,13 +76,15 @@ from `realm-management.manage-users` as follows:
 
 ## notes
 
-1. By default, in the `realm-management` client, the `manage-users` role is
-   composited with `query-groups` role. In order to remove manage
-   groups capability from `manage-profiles` and from `manage-credentials`, we
-   remove `query-groups` in step 3, above.
-2. Even though the new roles are composited with `manage-users`, the theme's
-   script and the class' filter achieve the capability restrictions enumerated
-   in the table above.
+1. By default, in the `realm-management` client, the `manage-users` role
+   is composited with the `query-groups` role. In order to remove manage
+   groups capability from the `manage-profiles` and `manage-credentials`
+   roles, we remove the `query-groups` role in step 3, above.
+2. Even though the new roles are composited with the `manage-users` role,
+   the theme's `hide-or-disable-elements.js` script and the 
+   `RestrictedAdminResourcesRequestFilter` class achieve the capability
+   restrictions enumerated in the table above.
+3. It is not required to enable Admin Permissions to use this module.
 
 ---
 
