@@ -2,8 +2,9 @@
 
 ## description
 
-Enabling Admin Permissions in a Keycloak realm introduces five authorization scopes for
-Users: `impersonation`, `manage`, `map-roles`, `view`, `manage-group-permissions`.
+Enabling Admin Permissions in a realm introduces five authorization
+scopes for Users: `impersonation`, `manage`, `map-roles`, `view`, and
+`manage-group-permissions`.
 
 Unfortunately, the `manage` authorization scope for Users is insufficiently
 fine-grained and allows an administrator to manage users' attributes _and_
@@ -14,7 +15,7 @@ restricted to managing credentials without granting the ability to create
 and delete users, or modifying their attributes (firstName, etc.).
 
 Unfortunately, it is not possible to introduce additional authorization
-scopes as the classes that would need overriding are implemented using
+scopes as the classes that would need overriding are not implemented using
 Java service provider interfaces (SPIs). This leaves two options:
    * option 1 - implement an alternate admin UI, with new Resources
    * option 2 - apply access controls in the current ADMIN_V2 UI and
