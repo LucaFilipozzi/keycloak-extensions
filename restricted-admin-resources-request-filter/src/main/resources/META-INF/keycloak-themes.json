@@ -3,6 +3,7 @@
     {
       "name": "restricted",
       "types": [
+        "account",
         "admin"
       ]
     }

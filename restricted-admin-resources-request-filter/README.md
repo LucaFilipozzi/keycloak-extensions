@@ -54,10 +54,13 @@ from `realm-management.manage-users` as follows:
 
 † Please see note 1.
 
+This module also includes an account theme, also named `restricted`, that
+only allows users to reset their passwords.
+
 ## usage
 
 1. copy the JAR to the providers directory and rebuild the optimized jar
-2. set admin theme to `restricted`
+2. set admin theme to `restricted` and set account theme to `restricted`
 3. modify `realm-management.manage-users`:
     - remove associated role `realm-management.query-groups`
 4. create two new roles in client `realm-management`:
