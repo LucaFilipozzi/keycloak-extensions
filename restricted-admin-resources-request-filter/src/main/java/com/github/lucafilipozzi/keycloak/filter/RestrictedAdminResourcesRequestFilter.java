@@ -196,7 +196,6 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
     if (consoleClient == null) {
       return; // should never happen
     }
-    LOG.info("hi mum 7");
 
     // roleClient defines the roles through whose
     // assignment the logged-in user is granted
