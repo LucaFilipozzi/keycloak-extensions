@@ -68,6 +68,8 @@ function modifyElements() {
         modifyElementByLabelFor('firstName', {disable: true});
         modifyElementByLabelFor('lastName', {disable: true});
         modifyElementByLabelFor('password-sync', {disable: true});
+        modifyElementBySelector('[data-testid="user-creation-save"]', {hide: true, disable: true});
+        modifyElementBySelector('[data-testid="user-creation-revert"]', {hide: true, disable: true});
       }
     }
   } catch (error) {
