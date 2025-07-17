@@ -2,8 +2,10 @@
 
 package com.github.lucafilipozzi.keycloak.filter;
 
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import com.google.common.collect.Table;
 import jakarta.annotation.Priority;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -16,8 +18,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+import lombok.Data;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
-import org.apache.commons.collections4.map.MultiKeyMap;
 import org.keycloak.component.ComponentValidationException;
 import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakContext;
@@ -37,6 +41,16 @@ import org.keycloak.services.resources.admin.UsersResource;
 @Priority(Priorities.AUTHORIZATION)
 @JBossLog
 public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFilter {
+
+  @Data
+  @RequiredArgsConstructor(staticName = "of")
+  static class ControlledResource {
+    @NonNull
+    private String className;
+    @NonNull
+    private String methodName;
+  }
+
   // users having this new `realm-management` client role assigned can only manage the profiles and credentials of other users
   private final static String MANAGE_PROFILES = "manage-profiles";
 
@@ -47,13 +61,10 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
   private final static String MANAGE_ACCOUNT = "manage-account";
 
   // be efficient ... in filter(), below, only handle roles that can be added to the permission map
-  private final static Set<String> controllingRoles = ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS, MANAGE_ACCOUNT);
+  private final static Set<String> controllingRoleNames = ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS, MANAGE_ACCOUNT);
 
-  // key is resourceClassName, resourceMethodName, controllingRoleName; value is boolean where false means deny
-  private final MultiKeyMap<String, Boolean> permissions = new MultiKeyMap<>();
-
-  // be efficient ... in filter(), below, only handle resources that have been added to the permission map
-  MultiKeyMap<String, Boolean> controlledResources = new MultiKeyMap<>();
+  // rolKey is controlledResource, columnKey is controllingRoleName; value is boolean where false means deny
+  private final Table<ControlledResource, String, Boolean> permissionsTable = HashBasedTable.create();
 
   @Context
   private KeycloakSession session;
@@ -144,10 +155,6 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
         Method deleteOnlineOrOfflineSession = findMethod(RealmAdminResource.class, "deleteSession");
         denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
             ImmutableSet.of(getOnlineSessions, getOfflineSessions, delOnlineSessions, deleteOnlineOrOfflineSession));
-
-        permissions.keySet().forEach(multiKey ->
-          controlledResources.put(multiKey.getKey(0), multiKey.getKey(1), true)
-        );
       }
     } catch (NoSuchMethodException e) {
       // since reflection is sensitive to future refactoring, let's catch any
@@ -164,12 +171,13 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       return; // return early if not filtering a request for a resource
     }
 
-    // using resourceClassName and resourceMethodName from injected resourceInfo
-    // is more efficient than parsing uriInfo path ourselves and much simpler than
-    // adding an external authorization dependency such as https://casbin.org/
-    String resourceClassName = resourceInfo.getResourceClass().getName();
-    String resourceMethodName = resourceInfo.getResourceMethod().getName();
-    if (!controlledResources.containsKey(resourceClassName, resourceMethodName)) {
+    // using resourceClass and resourceMethod from injected resourceInfo is
+    // more efficient than parsing uriInfo path ourselves and much simpler than
+    // adding an authorization dependency such as https://casbin.org/
+    ControlledResource controlledResource = ControlledResource.of(
+        resourceInfo.getResourceClass().getName(),
+        resourceInfo.getResourceMethod().getName());
+    if (!permissionsTable.containsRow(controlledResource)) {
       return; // return early if not filtering a request for a _controlled_ resource
     }
 
@@ -219,28 +227,30 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
         .filter(user::hasRole)
         .map(RoleModel::getName)
         // filter may result in an empty stream
-        .filter(controllingRoles::contains)
+        .filter(controllingRoleNames::contains)
         // allMatch of an empty stream returns true (default grant access)
         .allMatch(controllingRoleName -> Optional
-            .ofNullable(permissions.get(resourceClassName, resourceMethodName, controllingRoleName))
+            .ofNullable(permissionsTable.get(controlledResource, controllingRoleName))
             .orElse(true));
 
     if (permitted) {
       LOG.debugf("access granted: resourceClassName=%s resourceMethodName=%s realm=%s user=%s",
-          resourceClassName, resourceMethodName, realm.getName(), user.getUsername());
+          controlledResource.getClassName(), controlledResource.getMethodName(), realm.getName(), user.getUsername());
     } else {
       LOG.debugf("access denied: resourceClassName=%s resourceMethodName=%s realm=%s user=%s",
-          resourceClassName, resourceMethodName, realm.getName(), user.getUsername());
+          controlledResource.getClassName(), controlledResource.getMethodName(), realm.getName(), user.getUsername());
       requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
     }
   }
 
-  private void denyAccess(Set<String> roleNames, Set<Method> resourceMethods) {
-    Sets.cartesianProduct(roleNames, resourceMethods).forEach(combination -> {
-      String roleName = (String) combination.get(0);
+  private void denyAccess(Set<String> controllingRoleNames, Set<Method> resourceMethods) {
+    Sets.cartesianProduct(controllingRoleNames, resourceMethods).forEach(combination -> {
+      String controllingRoleName = (String) combination.get(0);
       Method resourceMethod = (Method) combination.get(1);
-      Class<?> resourceClass = resourceMethod.getDeclaringClass();
-      permissions.put(resourceClass.getName(), resourceMethod.getName(), roleName, false);
+      ControlledResource controlledResource = ControlledResource.of(
+          resourceMethod.getName(),
+          resourceMethod.getDeclaringClass().getName());
+      permissionsTable.put(controlledResource, controllingRoleName, false);
     });
   }
 
