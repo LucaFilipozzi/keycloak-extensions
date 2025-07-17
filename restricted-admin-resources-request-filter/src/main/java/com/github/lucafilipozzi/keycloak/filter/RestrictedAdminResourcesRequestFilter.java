@@ -54,7 +54,7 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
   // users having this new `realm-management` client role assigned can only manage the profiles and credentials of other users
   private final static String MANAGE_PROFILES = "manage-profiles";
 
-  // users having this new `realm-management` role assigned can only manage the credentials of other users
+  // users having this new `realm-management` client role assigned can only manage the credentials of other users
   private final static String MANAGE_CREDENTIALS = "manage-credentials";
 
   // users having this existing `account` client role assigned will be restricted to managing their own password only
@@ -63,7 +63,7 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
   // be efficient ... in filter(), below, only handle roles that can be added to the permission map
   private final static Set<String> controllingRoleNames = ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS, MANAGE_ACCOUNT);
 
-  // rolKey is controlledResource, columnKey is controllingRoleName; value is boolean where false means deny
+  // rowKey is controlledResource, columnKey is controllingRoleName; value is boolean where false means deny
   private final Table<ControlledResource, String, Boolean> permissionsTable = HashBasedTable.create();
 
   @Context
@@ -248,8 +248,8 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       String controllingRoleName = (String) combination.get(0);
       Method resourceMethod = (Method) combination.get(1);
       ControlledResource controlledResource = ControlledResource.of(
-          resourceMethod.getName(),
-          resourceMethod.getDeclaringClass().getName());
+          resourceMethod.getDeclaringClass().getName(),
+          resourceMethod.getName());
       permissionsTable.put(controlledResource, controllingRoleName, false);
     });
   }
