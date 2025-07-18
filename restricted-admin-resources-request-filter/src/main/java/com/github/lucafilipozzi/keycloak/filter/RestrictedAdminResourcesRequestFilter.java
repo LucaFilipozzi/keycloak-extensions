@@ -52,16 +52,16 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
   }
 
   // users having this new `realm-management` client role assigned can only manage the profiles and credentials of other users
-  private final static String MANAGE_PROFILES = "manage-profiles";
+  private static final String MANAGE_PROFILES = "manage-profiles";
 
   // users having this new `realm-management` client role assigned can only manage the credentials of other users
-  private final static String MANAGE_CREDENTIALS = "manage-credentials";
+  private static final String MANAGE_CREDENTIALS = "manage-credentials";
 
   // users having this existing `account` client role assigned will be restricted to managing their own password only
-  private final static String MANAGE_ACCOUNT = "manage-account";
+  private static final String MANAGE_ACCOUNT = "manage-account";
 
   // be efficient ... in filter(), below, only handle roles that can be added to the permission map
-  private final static Set<String> controllingRoleNames = ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS, MANAGE_ACCOUNT);
+  private static final Set<String> controllingRoleNames = ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS, MANAGE_ACCOUNT);
 
   // rowKey is controlledResource, columnKey is controllingRoleName; value is boolean where false means deny
   private final Table<ControlledResource, String, Boolean> permissionsTable = HashBasedTable.create();
@@ -74,88 +74,8 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
 
   public RestrictedAdminResourcesRequestFilter() {
     try {
-      // ** account-console **
-      {
-        Method getAccount = findMethod(AccountRestService.class, "account");
-        Method modAccount = findMethod(AccountRestService.class, "updateAccount");
-        Method getApplications = findMethod(AccountRestService.class, "applications");
-        Method getConsent = findMethod(AccountRestService.class, "getConsent");
-        Method addConsent = findMethod(AccountRestService.class, "grantConsent");
-        Method delConsent = findMethod(AccountRestService.class, "revokeConsent");
-        Method modConsent = findMethod(AccountRestService.class, "updateConsent");
-        Method getCredentials = findMethod(AccountRestService.class, "credentials");
-        Method getDevices = findMethod(SessionResource.class, "devices");
-        Method getGroupMemberships = findMethod(AccountRestService.class, "groupMemberships");
-        Method getLinkedAccounts = findMethod(AccountRestService.class, "linkedAccounts");
-        Method getOrganizations = findMethod(AccountRestService.class, "organizations");
-        Method getResources = findMethod(AccountRestService.class, "resources");
-        Method getSessions = findMethod(AccountRestService.class, "sessions");
-        denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
-            ImmutableSet.of(getAccount, getCredentials));
-        denyAccess(ImmutableSet.of(MANAGE_ACCOUNT),
-            ImmutableSet.of(modAccount, getApplications, getConsent, addConsent, delConsent, modConsent,
-              getDevices, getGroupMemberships, getLinkedAccounts, getOrganizations, getResources, getSessions));
-      }
-
-      // ** security-admin-console **
-      {
-        // users
-        Method getUsers = findMethod(UsersResource.class, "getUsers");
-        Method getUser = findMethod(UserResource.class, "getUser");
-        Method addUser = findMethod(UsersResource.class, "createUser");
-        Method delUser = findMethod(UserResource.class, "deleteUser");
-        Method modUser = findMethod(UserResource.class, "updateUser");
-        denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
-            ImmutableSet.of(getUsers, getUser));
-        denyAccess(ImmutableSet.of(MANAGE_CREDENTIALS),
-            ImmutableSet.of(addUser, delUser, modUser));
-
-        // credentials
-        Method getCredentials = findMethod(UserResource.class, "credentials");
-        Method addCredential = findMethod(UserResource.class, "resetPassword");
-        Method delCredential = findMethod(UserResource.class, "removeCredential");
-        Method modCredential = findMethod(UserResource.class, "setCredentialUserLabel");
-        denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
-            ImmutableSet.of(getCredentials, addCredential, delCredential, modCredential));
-
-        // role mappings
-        Method getRoleMappings = findMethod(RoleMapperResource.class, "getRoleMappings");
-        Method addRealmRoleMappings = findMethod(RoleMapperResource.class, "addRealmRoleMappings");
-        Method delRealmRoleMappings = findMethod(RoleMapperResource.class, "deleteRealmRoleMappings");
-        Method addClientRoleMappings = findMethod(ClientRoleMappingsResource.class, "addClientRoleMapping");
-        Method delClientRoleMappings = findMethod(ClientRoleMappingsResource.class, "deleteClientRoleMapping");
-        denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
-            ImmutableSet.of(getRoleMappings, addRealmRoleMappings, delRealmRoleMappings, addClientRoleMappings, delClientRoleMappings));
-
-        // group memberships
-        Method getGroupMemberships = findMethod(UserResource.class, "groupMembership");
-        Method addGroupMembership = findMethod(UserResource.class, "joinGroup");
-        Method delGroupMembership = findMethod(UserResource.class, "removeMembership");
-        denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
-            ImmutableSet.of(getGroupMemberships, addGroupMembership, delGroupMembership));
-
-        // consents
-        Method getConsents = findMethod(UserResource.class, "getConsents");
-        Method delConsent = findMethod(UserResource.class, "revokeConsent");
-        denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
-            ImmutableSet.of(getConsents, delConsent));
-
-        // federated identities
-        Method getFederatedIdentities = findMethod(UserResource.class, "getFederatedIdentities");
-        Method getFederatedIdentity = findMethod(UserResource.class, "getFederatedIdentity");
-        Method addFederatedIdentity = findMethod(UserResource.class, "addFederatedIdentity");
-        Method delFederatedIdentity = findMethod(UserResource.class, "removeFederatedIdentity");
-        denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
-            ImmutableSet.of(getFederatedIdentities, getFederatedIdentity, addFederatedIdentity, delFederatedIdentity));
-
-        // sessions
-        Method getOnlineSessions = findMethod(UserResource.class, "getSessions");
-        Method getOfflineSessions = findMethod(UserResource.class, "getOfflineSessions");
-        Method delOnlineSessions = findMethod(UserResource.class, "logout");
-        Method deleteOnlineOrOfflineSession = findMethod(RealmAdminResource.class, "deleteSession");
-        denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
-            ImmutableSet.of(getOnlineSessions, getOfflineSessions, delOnlineSessions, deleteOnlineOrOfflineSession));
-      }
+      denyAccessToAccountConsoleResources();
+      denyAccessToSecurityAdminConsoleResources();
     } catch (NoSuchMethodException e) {
       // since reflection is sensitive to future refactoring, let's catch any
       // NoSuchMethodExceptions thrown during construction and throw an exception
@@ -241,6 +161,87 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
           controlledResource.getClassName(), controlledResource.getMethodName(), realm.getName(), user.getUsername());
       requestContext.abortWith(Response.status(Response.Status.FORBIDDEN).build());
     }
+  }
+
+  private void denyAccessToAccountConsoleResources() throws NoSuchMethodException{
+    Method getAccount = findMethod(AccountRestService.class, "account");
+    Method modAccount = findMethod(AccountRestService.class, "updateAccount");
+    Method getApplications = findMethod(AccountRestService.class, "applications");
+    Method getConsent = findMethod(AccountRestService.class, "getConsent");
+    Method addConsent = findMethod(AccountRestService.class, "grantConsent");
+    Method delConsent = findMethod(AccountRestService.class, "revokeConsent");
+    Method modConsent = findMethod(AccountRestService.class, "updateConsent");
+    Method getCredentials = findMethod(AccountRestService.class, "credentials");
+    Method getDevices = findMethod(SessionResource.class, "devices");
+    Method getGroupMemberships = findMethod(AccountRestService.class, "groupMemberships");
+    Method getLinkedAccounts = findMethod(AccountRestService.class, "linkedAccounts");
+    Method getOrganizations = findMethod(AccountRestService.class, "organizations");
+    Method getResources = findMethod(AccountRestService.class, "resources");
+    Method getSessions = findMethod(AccountRestService.class, "sessions");
+    denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
+        ImmutableSet.of(getAccount, getCredentials));
+    denyAccess(ImmutableSet.of(MANAGE_ACCOUNT),
+        ImmutableSet.of(modAccount, getApplications, getConsent, addConsent, delConsent, modConsent,
+            getDevices, getGroupMemberships, getLinkedAccounts, getOrganizations, getResources, getSessions));
+  }
+
+  private void denyAccessToSecurityAdminConsoleResources() throws NoSuchMethodException {
+    // users
+    Method getUsers = findMethod(UsersResource.class, "getUsers");
+    Method getUser = findMethod(UserResource.class, "getUser");
+    Method addUser = findMethod(UsersResource.class, "createUser");
+    Method delUser = findMethod(UserResource.class, "deleteUser");
+    Method modUser = findMethod(UserResource.class, "updateUser");
+    denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
+        ImmutableSet.of(getUsers, getUser));
+    denyAccess(ImmutableSet.of(MANAGE_CREDENTIALS),
+        ImmutableSet.of(addUser, delUser, modUser));
+
+    // credentials
+    Method getCredentials = findMethod(UserResource.class, "credentials");
+    Method addCredential = findMethod(UserResource.class, "resetPassword");
+    Method delCredential = findMethod(UserResource.class, "removeCredential");
+    Method modCredential = findMethod(UserResource.class, "setCredentialUserLabel");
+    denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
+        ImmutableSet.of(getCredentials, addCredential, delCredential, modCredential));
+
+    // role mappings
+    Method getRoleMappings = findMethod(RoleMapperResource.class, "getRoleMappings");
+    Method addRealmRoleMappings = findMethod(RoleMapperResource.class, "addRealmRoleMappings");
+    Method delRealmRoleMappings = findMethod(RoleMapperResource.class, "deleteRealmRoleMappings");
+    Method addClientRoleMappings = findMethod(ClientRoleMappingsResource.class, "addClientRoleMapping");
+    Method delClientRoleMappings = findMethod(ClientRoleMappingsResource.class, "deleteClientRoleMapping");
+    denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
+        ImmutableSet.of(getRoleMappings, addRealmRoleMappings, delRealmRoleMappings, addClientRoleMappings, delClientRoleMappings));
+
+    // group memberships
+    Method getGroupMemberships = findMethod(UserResource.class, "groupMembership");
+    Method addGroupMembership = findMethod(UserResource.class, "joinGroup");
+    Method delGroupMembership = findMethod(UserResource.class, "removeMembership");
+    denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
+        ImmutableSet.of(getGroupMemberships, addGroupMembership, delGroupMembership));
+
+    // consents
+    Method getConsents = findMethod(UserResource.class, "getConsents");
+    Method delConsent = findMethod(UserResource.class, "revokeConsent");
+    denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
+        ImmutableSet.of(getConsents, delConsent));
+
+    // federated identities
+    Method getFederatedIdentities = findMethod(UserResource.class, "getFederatedIdentities");
+    Method getFederatedIdentity = findMethod(UserResource.class, "getFederatedIdentity");
+    Method addFederatedIdentity = findMethod(UserResource.class, "addFederatedIdentity");
+    Method delFederatedIdentity = findMethod(UserResource.class, "removeFederatedIdentity");
+    denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
+        ImmutableSet.of(getFederatedIdentities, getFederatedIdentity, addFederatedIdentity, delFederatedIdentity));
+
+    // sessions
+    Method getOnlineSessions = findMethod(UserResource.class, "getSessions");
+    Method getOfflineSessions = findMethod(UserResource.class, "getOfflineSessions");
+    Method delOnlineSessions = findMethod(UserResource.class, "logout");
+    Method deleteOnlineOrOfflineSession = findMethod(RealmAdminResource.class, "deleteSession");
+    denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
+        ImmutableSet.of(getOnlineSessions, getOfflineSessions, delOnlineSessions, deleteOnlineOrOfflineSession));
   }
 
   private void denyAccess(Set<String> controllingRoleNames, Set<Method> resourceMethods) {

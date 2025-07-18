@@ -22,11 +22,6 @@ public class Md5CryptPasswordHashProvider implements PasswordHashProvider {
   }
 
   @Override
-  public String encode(String password, int iterations) {
-    return md5Crypt(password);
-  }
-
-  @Override
   public boolean verify(String password, PasswordCredentialModel credential) {
     String hash = credential.getPasswordSecretData().getValue();
     return md5Crypt(password, hash).equals(hash);
