@@ -137,20 +137,17 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
               case "account-console" -> realm.getAccountTheme().equals(THEME) ? "account" : null;
               case "security-admin-console" -> realm.getAdminTheme().equals(THEME) ? "realm-management" : null;
               default -> null;
-            }
-        );
+            });
     if (roleClient == null) {
       return; // could happen if not a console client or console's theme isn't THEME
     }
 
+    // filter may result in an empty stream; allMatch of an empty stream returns true (default grant access)
     boolean permitted = roleClient
         .getRolesStream()
-        // filter may result in an empty stream
         .filter(user::hasRole)
         .map(RoleModel::getName)
-        // filter may result in an empty stream
         .filter(controllingRoleNames::contains)
-        // allMatch of an empty stream returns true (default grant access)
         .allMatch(controllingRoleName -> Optional
             .ofNullable(permissionsTable.get(controlledResource, controllingRoleName))
             .orElse(true));
