@@ -44,12 +44,15 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
 
   @Data
   @RequiredArgsConstructor(staticName = "of")
-  static class ControlledResource {
+  private static class ControlledResource {
     @NonNull
     private String className;
     @NonNull
     private String methodName;
   }
+
+  // theme name (see src/main/resources/META-INF/keycloak-themes.conf)
+  private static final String THEME = "restricted";
 
   // users having this new `realm-management` client role assigned can only manage the profiles and credentials of other users
   private static final String MANAGE_PROFILES = "manage-profiles";
@@ -91,9 +94,9 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       return; // return early if not filtering a request for a resource
     }
 
-    // using resourceClass and resourceMethod from injected resourceInfo is
+    // Using resourceClass and resourceMethod from injected resourceInfo is
     // more efficient than parsing uriInfo path ourselves and much simpler than
-    // adding an authorization dependency such as https://casbin.org/
+    // adding an authorization dependency such as https://casbin.org/.
     ControlledResource controlledResource = ControlledResource.of(
         resourceInfo.getResourceClass().getName(),
         resourceInfo.getResourceMethod().getName());
@@ -116,29 +119,28 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       return; // should never happen
     }
 
-    // consoleClient is the React application
-    // (i.e. account-console or security-admin-console)
-    // that is accessing the resource we are protecting
-    // on behalf of the logged-in user
+    // consoleClient is the React application (i.e., account-console or security-admin-console) that,
+    // on behalf of the logged-in user, is attempting to access the resource that we are controlling.
     ClientModel consoleClient = context.getClient();
     if (consoleClient == null) {
       return; // should never happen
     }
 
-    // roleClient defines the roles through whose
-    // assignment the logged-in user is granted
-    // access to the resource we are protecting
+    // roleClient contains the roles through whose assignment the logged-in user is granted (or
+    // denied if the console's theme is THEME) access to the resource that we are controlling.
+    // Here, we map consoleClient to roleClient but only if the console's theme is THEME as that
+    // is indicative of the administrator's desire for this filter to be applied to resources.
     ClientModel roleClient = session.clients()
-        .getClientByClientId(
+        .getClientByClientId( // returns null if switch-resolved clientId is null
             realm,
             switch (consoleClient.getClientId()) {
-              case "account-console" -> "account";
-              case "security-admin-console" -> "realm-management";
+              case "account-console" -> realm.getAccountTheme().equals(THEME) ? "account" : null;
+              case "security-admin-console" -> realm.getAdminTheme().equals(THEME) ? "realm-management" : null;
               default -> null;
             }
         );
     if (roleClient == null) {
-      return; // could happen but okay (see default case in switch above)
+      return; // could happen if not a console client or console's theme isn't THEME
     }
 
     boolean permitted = session.roles()
