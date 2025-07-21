@@ -143,8 +143,8 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       return; // could happen if not a console client or console's theme isn't THEME
     }
 
-    boolean permitted = session.roles()
-        .getClientRolesStream(roleClient)
+    boolean permitted = roleClient
+        .getRolesStream()
         // filter may result in an empty stream
         .filter(user::hasRole)
         .map(RoleModel::getName)
