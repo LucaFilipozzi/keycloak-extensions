@@ -150,7 +150,7 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
         .filter(controllingRoleNames::contains)
         .allMatch(controllingRoleName -> Optional
             .ofNullable(permissionsTable.get(controlledResource, controllingRoleName))
-            .orElse(true));
+            .orElse(Boolean.TRUE));
 
     if (permitted) {
       LOG.debugf("access granted: resourceClassName=%s resourceMethodName=%s realm=%s user=%s",
@@ -250,7 +250,7 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
       ControlledResource controlledResource = ControlledResource.of(
           resourceMethod.getDeclaringClass().getName(),
           resourceMethod.getName());
-      permissionsTable.put(controlledResource, controllingRoleName, false);
+      permissionsTable.put(controlledResource, controllingRoleName, Boolean.FALSE);
     });
   }
 
