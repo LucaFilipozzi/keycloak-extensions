@@ -134,8 +134,10 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
         .getClientByClientId( // returns null if switch-resolved clientId is null
             realm,
             switch (consoleClient.getClientId()) {
-              case "account-console" -> realm.getAccountTheme().equals(THEME) ? "account" : null;
-              case "security-admin-console" -> realm.getAdminTheme().equals(THEME) ? "realm-management" : null;
+              case "account-console" ->
+                  (realm.getAccountTheme().equals(THEME) || realm.getAccountTheme().startsWith("agency")) ? "account" : null;
+              case "security-admin-console" ->
+                  (realm.getAdminTheme().equals(THEME) || realm.getAdminTheme().startsWith("agency")) ? "realm-management" : null;
               default -> null;
             });
     if (roleClient == null) {
