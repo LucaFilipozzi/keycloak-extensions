@@ -13,8 +13,8 @@ This event listener provider performs three functions:
    users who have expired passwords or inactive accounts beyond the grace
    period specified in the 'Disable Users' password policy
 3. it periodically (per `taskInterval` configuration parameter) determines
-   (per `warningIntervals` configuration parameter) whether an email warning
-   should be sent to users who have passwords that will be within the warning
+   (per `warningIntervals` configuration parameter) whether a warning email
+   should be sent to users who have passwords that will be expiring within the
    interval, updating the `last-warning` and `days-to-password-expiry` attributes
 
 ## usage
@@ -23,7 +23,7 @@ This event listener provider performs three functions:
 2. modify keycloak.conf
    ```conf
    spi-events-listener-login-event-listener-enabled=true
-   spi-events-listener-login-event-listener-task-interval=PT30S
+   spi-events-listener-login-event-listener-task-interval=PT1D
    spi-events-listener-login-event-listener-warning-intervals=-P28D, -P14D, -P7D, -P1D
 3. add a `last-login` attribute to the realm's declarative user profile with
    - permissions
