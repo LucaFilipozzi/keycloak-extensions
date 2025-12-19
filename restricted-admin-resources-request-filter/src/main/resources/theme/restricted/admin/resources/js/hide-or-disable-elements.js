@@ -60,6 +60,8 @@ function modifyElements() {
         modifyElementBySelector('table[aria-label="Users"] input[name="check-all"]', {hide: true, disable: true});
         modifyElementBySelector('table[aria-label="Users"] input[name^="checkrow"]', {hide: true, disable: true});
         modifyElementBySelector('table[aria-label="Users"] button[aria-label="Kebab toggle"]', {hide: true, disable: true});
+        modifyElementBySpanText('Delete user', {hide: true, disable: true});
+        modifyElementBySpanText('Unlock all users', {hide: true, disable: true});
         modifyElementBySelector('[data-testid="action-dropdown"]', {hide: true, disable: true});
         modifyElementBySelector('input[id$="-switch"]', {disable: true});
         modifyElementByLabelFor('requiredActions', {disable: true});
@@ -75,6 +77,26 @@ function modifyElements() {
   } catch (error) {
     console.error('error applying restrictions: ', error);
   }
+}
+
+function modifyElementBySpanText(spanText, options = {}) {
+    const { hide = false, disable = false } = options;
+    const element = document.evaluate(
+        `//button[.//span[contains(.,"${spanText}")]]`,
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+    ).singleNodeValue
+    if (!element) {
+        return;
+    }
+    if (hide) {
+        hideElement(element);
+    }
+    if (disable) {
+        disableElement(element);
+    }
 }
 
 function modifyElementByLabelFor(forValue, options = {}) {

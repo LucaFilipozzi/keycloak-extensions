@@ -31,6 +31,7 @@ import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.services.resources.account.AccountRestService;
 import org.keycloak.services.resources.account.SessionResource;
+import org.keycloak.services.resources.admin.AttackDetectionResource;
 import org.keycloak.services.resources.admin.ClientRoleMappingsResource;
 import org.keycloak.services.resources.admin.RealmAdminResource;
 import org.keycloak.services.resources.admin.RoleMapperResource;
@@ -243,6 +244,14 @@ public class RestrictedAdminResourcesRequestFilter implements ContainerRequestFi
     Method deleteOnlineOrOfflineSession = findMethod(RealmAdminResource.class, "deleteSession");
     denyAccess(ImmutableSet.of(MANAGE_PROFILES, MANAGE_CREDENTIALS),
         ImmutableSet.of(getOnlineSessions, getOfflineSessions, delOnlineSessions, deleteOnlineOrOfflineSession));
+
+    Method getLockout = findMethod(AttackDetectionResource.class, "bruteForceUserStatus");
+    Method deleteLockout = findMethod(AttackDetectionResource.class, "clearBruteForceForUser");
+    Method deleteLockouts = findMethod(AttackDetectionResource.class, "clearAllBruteForce");
+    denyAccess(ImmutableSet.of(), // get rid of 'method not used' warnings
+        ImmutableSet.of(getLockout));
+    denyAccess(ImmutableSet.of(MANAGE_CREDENTIALS),
+        ImmutableSet.of(deleteLockout, deleteLockouts));
   }
 
   private void denyAccess(Set<String> controllingRoleNames, Set<Method> resourceMethods) {
